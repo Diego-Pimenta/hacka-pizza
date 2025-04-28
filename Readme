@@ -1,0 +1,87 @@
+Módulo de Login
+Tela: Login com campos de usuário e senha.
+
+Validação: Verifica se o usuário está ativo antes de permitir o acesso.
+
+Tabela: usuarios
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    login VARCHAR(50) UNIQUE,
+    senha VARCHAR(255),
+    ativo TINYINT(1) DEFAULT 1
+);
+
+
+CREATE TABLE sabores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    descricao TEXT
+);
+
+CREATE TABLE tamanhos_pizza (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tamanho VARCHAR(50),
+    preco DECIMAL(10,2),
+    max_sabores INT
+);
+
+CREATE TABLE bebidas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    preco DECIMAL(10,2)
+);
+
+CREATE TABLE clientes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    cpf VARCHAR(14) UNIQUE,
+    telefone VARCHAR(15) UNIQUE,
+    rua VARCHAR(100),
+    numero VARCHAR(10),
+    complemento VARCHAR(50),
+    bairro VARCHAR(50),
+    cidade VARCHAR(50)
+);
+
+CREATE TABLE pedidos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT,
+    data_hora DATETIME,
+    forma_pagamento ENUM('Dinheiro', 'Pix', 'Débito', 'Crédito'),
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+);
+
+CREATE TABLE itens_pizza (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pedido_id INT,
+    tamanho_id INT,
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
+    FOREIGN KEY (tamanho_id) REFERENCES tamanhos_pizza(id)
+);
+
+CREATE TABLE sabores_pizza (
+    item_pizza_id INT,
+    sabor_id INT,
+    FOREIGN KEY (item_pizza_id) REFERENCES itens_pizza(id),
+    FOREIGN KEY (sabor_id) REFERENCES sabores(id)
+);
+
+CREATE TABLE itens_bebida (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pedido_id INT,
+    bebida_id INT,
+    quantidade INT,
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
+    FOREIGN KEY (bebida_id) REFERENCES bebidas(id)
+);
+
+CREATE TABLE pedido_sabores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pedido_id INT NOT NULL,
+    sabor_id INT NOT NULL,
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
+    FOREIGN KEY (sabor_id) REFERENCES sabores(id) ON DELETE CASCADE
+);
+ALTER TABLE `pedidos` ADD `tamanho_id` INT NOT NULL ;
+ALTER TABLE `pedidos` ADD `bebida_id` INT NOT NULL ;
