@@ -1,0 +1,23 @@
+{
+  "name": "hacka-pizza",
+  "version": "1.0.0",
+  "description": "Módulo de Login\r Tela: Login com campos de usuário e senha.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Diego-Pimenta/hacka-pizza.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Diego-Pimenta/hacka-pizza/issues"
+  },
+  "homepage": "https://github.com/Diego-Pimenta/hacka-pizza#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "prisma": "^6.6.0"
+  }
+}
