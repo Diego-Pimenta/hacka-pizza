@@ -4,6 +4,7 @@ import express from 'express';
 import corsPolicy from './config/cors';
 import { protectAuth } from './middlewares/auth.middleware';
 import { errorHandler } from './middlewares/error.handler';
+import authRoutes from './routes/auth.routes';
 import clientRoutes from './routes/client.routes';
 
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(cors(corsPolicy));
 
 app.use(express.json());
 
+app.use('/auth', authRoutes);
 app.use('/clients', protectAuth, clientRoutes);
 
 app.use(errorHandler);

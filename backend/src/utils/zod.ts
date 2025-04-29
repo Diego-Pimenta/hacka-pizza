@@ -9,7 +9,10 @@ export const clientSchema = z.object({
   activate: z.boolean().default(true),
 });
 
-export const loginSchema = z.object({});
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(20),
+});
 
 export const orderSchema = z.object({
   clientId: z.string().uuid(),
@@ -27,7 +30,7 @@ export const orderSchema = z.object({
 });
 
 export const orderUpdateSchema = z.object({
-  status: z.nativeEnum(OrderStatus)
+  status: z.nativeEnum(OrderStatus),
 });
 
 export const productSchema = z.object({

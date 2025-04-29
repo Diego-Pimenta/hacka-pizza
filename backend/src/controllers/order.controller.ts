@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as OrderService from '../services/order.service';
 import { orderSchema, orderUpdateSchema } from '../utils/zod';
 
@@ -6,7 +6,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
   try {
     const data = orderSchema.parse(req.body);
     const order = await OrderService.createOrder(data);
-    res.status(201).json(order);
+    res.status(201).json({ success: true, data: order });
   } catch (error) {
     next(error);
   }
@@ -15,7 +15,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 export const getOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const orders = await OrderService.getAllOrders();
-    res.status(200).json(orders);
+    res.status(200).json({ success: true, data: orders });
   } catch (error) {
     next(error);
   }
@@ -25,7 +25,7 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
   try {
     const { id } = req.params;
     const order = await OrderService.getOrderById(id);
-    res.status(200).json(order);
+    res.status(200).json({ success: true, data: order });
   } catch (error) {
     next(error);
   }
@@ -36,7 +36,7 @@ export const updateOrderStatus = async (req: Request, res: Response, next: NextF
     const { id } = req.params;
     const data = orderUpdateSchema.parse(req.body);
     const order = await OrderService.updateOrderStatus(id, data.status);
-    res.status(200).json(order);
+    res.status(200).json({ success: true, data: order });
   } catch (error) {
     next(error);
   }
@@ -52,12 +52,12 @@ export const deleteOrder = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const checkExistingOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const checkExistingOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id;
     const order = await OrderService.getOrderById(id);
     if (!order) {
-      res.status(404).json({ message: 'Order not found' });
+      res.status(404).json({ success: false, error: { message: 'Order not found' } });
       return;
     }
     next();
