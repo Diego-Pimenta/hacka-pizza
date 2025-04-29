@@ -9,40 +9,40 @@ datasource db {
 }
 
 model Client {
-  id          String    @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   cpf         String
   email       String
   password    String
   addressId   String
   phoneNumber String
-  active      Boolean   @default(true)
-  address     Address   @relation(fields: [addressId], references: [id])
+  active      Boolean @default(true)
+  address     Address @relation(fields: [addressId], references: [id])
   orders      Order[]
 }
 
 model Address {
-  id        String   @id @default(uuid())
-  address   String
-  region    String
-  postCode  String
-  country   String
-  clients   Client[]
-  orders    Order[]
+  id       String   @id @default(uuid())
+  address  String
+  region   String
+  postCode String
+  country  String
+  clients  Client[]
+  orders   Order[]
 }
 
 model Order {
-  id             String      @id @default(uuid())
-  clientId       String
-  addressId      String
-  paymentMethod  PaymentMethod
-  status         OrderStatus
-  total          Float
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  client         Client      @relation(fields: [clientId], references: [id])
-  address        Address     @relation(fields: [addressId], references: [id])
-  orderItems     OrderItem[]
+  id            String        @id @default(uuid())
+  clientId      String
+  addressId     String
+  paymentMethod PaymentMethod
+  status        OrderStatus
+  total         Float
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  client        Client        @relation(fields: [clientId], references: [id])
+  address       Address       @relation(fields: [addressId], references: [id])
+  orderItems    OrderItem[]
 }
 
 model OrderItem {
