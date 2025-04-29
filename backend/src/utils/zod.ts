@@ -30,3 +30,10 @@ export const orderUpdateSchema = z.object({
   status: z.nativeEnum(OrderStatus)
 });
 
+export const productSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  category: z.enum(['DRINK', 'PIZZA']),
+  size: z.string(),
+  price: z.number().positive('Price must be a positive number'),
+});
