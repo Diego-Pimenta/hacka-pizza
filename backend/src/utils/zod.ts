@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PaymentMethod, OrderStatus } from '../../generated/prisma';
 
 export const clientSchema = z.object({
   name: z.string(),
@@ -9,3 +10,23 @@ export const clientSchema = z.object({
 });
 
 export const loginSchema = z.object({});
+
+export const orderSchema = z.object({
+  clientId: z.string().uuid(),
+  addressId: z.string().uuid(),
+  paymentMethod: z.nativeEnum(PaymentMethod),
+  status: z.nativeEnum(OrderStatus).default('PENDING'),
+  total: z.number().positive(),
+  orderItems: z.array(
+    z.object({
+      productId: z.string().uuid(),
+      quantity: z.number().int().positive(),
+      subTotal: z.number().positive(),
+    })
+  ),
+});
+
+export const orderUpdateSchema = z.object({
+  status: z.nativeEnum(OrderStatus)
+});
+
