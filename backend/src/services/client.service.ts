@@ -15,7 +15,7 @@ export const createClient = async (data: Prisma.ClientUncheckedCreateInput) => {
     }),
   ]);
 
-  if (client[0] || client[0]) {
+  if (client[0] || client[1]) {
     throw new Error('Client already exists');
   }
 

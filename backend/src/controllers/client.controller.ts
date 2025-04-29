@@ -7,7 +7,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
 
   try {
     const client = await ClientService.createClient(data);
-    res.status(201).json(client);
+    res.status(201).json({ success: true, data: client });
   } catch (error) {
     next(error);
   }
@@ -16,7 +16,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
 export const getClients = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const clients = await ClientService.getAllClients();
-    res.status(200).json(clients);
+    res.status(200).json({ success: true, data: clients });
   } catch (error) {
     next(error);
   }
@@ -26,7 +26,7 @@ export const getClientById = async (req: Request, res: Response, next: NextFunct
   try {
     const { id } = req.params;
     const client = await ClientService.getClientById(id);
-    res.status(200).json(client);
+    res.status(200).json({ success: true, data: client });
   } catch (error) {
     next(error);
   }
@@ -38,7 +38,7 @@ export const updateClient = async (req: Request, res: Response, next: NextFuncti
   try {
     const { id } = req.params;
     const client = await ClientService.updateClient(id, data);
-    res.status(200).json(client);
+    res.status(200).json({ success: true, data: client });
   } catch (error) {
     next(error);
   }
@@ -59,7 +59,7 @@ export const checkExistingClient = async (req: Request, res: Response, next: Nex
     const id = req.params.id;
     const client = await ClientService.getClientById(id);
     if (!client) {
-      res.status(404).json({ message: 'Client not found' });
+      res.status(404).json({ success: false, error: { message: 'Client not found' } });
       return;
     }
     next();

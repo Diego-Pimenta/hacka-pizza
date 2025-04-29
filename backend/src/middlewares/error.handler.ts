@@ -1,17 +1,15 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
-import { JsonWebTokenError } from 'jsonwebtoken';
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof ZodError) {
-    return res.status(400).json({
-      message: 'Validation error occurred',
-      errors: err.errors,
-    });
+    const errors = err.errors.map((e: any) => e.message) as string[];
+    res.status(400).json({ success: false, error: { message: 'Validation error occurred', errors: errors } });
+    return;
   }
 
-  return res.status(err.status || 500).json({
-    message: err.message || 'An unexpected error occurred',
-    error: err,
-  });
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'An unexpected error occurred';
+
+  res.status(statusCode).json({ success: false, error: { message: message } });
 };

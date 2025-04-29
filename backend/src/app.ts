@@ -1,10 +1,10 @@
-import express, { Errback, Request, Response } from 'express';
 import cors from 'cors';
-import corsPolicy from './config/cors';
 import dotenv from 'dotenv';
-import clientRoutes from './routes/client.routes';
+import express from 'express';
+import corsPolicy from './config/cors';
 import { protectAuth } from './middlewares/auth.middleware';
-import { ZodError } from 'zod';
+import { errorHandler } from './middlewares/error.handler';
+import clientRoutes from './routes/client.routes';
 
 dotenv.config();
 
@@ -16,12 +16,6 @@ app.use(express.json());
 
 app.use('/clients', protectAuth, clientRoutes);
 
-app.use((error: Errback, _req: Request, res: Response) => {
-  if (error instanceof ZodError) {
-    res.status(400).send({ error: 'Validation error', issues: error.format() });
-  }
-
-  res.status(500).send({ error: 'Internal server error' });
-});
+app.use(errorHandler);
 
 export default app;
