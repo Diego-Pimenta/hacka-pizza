@@ -24,7 +24,6 @@ export const orderSchema = z.object({
     z.object({
       productId: z.string().uuid(),
       quantity: z.number().int().positive(),
-      subTotal: z.number().positive(),
     })
   ),
 });
