@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "@tailwindcss/postcss": "^4",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.56.1",
     "tailwindcss": "^4",
-    "@tailwindcss/postcss": "^4"
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@types/node": "22.15.3",
