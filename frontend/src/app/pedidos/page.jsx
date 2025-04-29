@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 
-
 const clientesFake = {
   "11999999999": { nome: "João da Silva", endereco: "Rua das Flores, 123" },
   "11988888888": { nome: "Maria Oliveira", endereco: "Av. Brasil, 456" },
@@ -43,7 +42,38 @@ const saboresPizza = [
   },
 ];
 
-const precoBebida = 5;
+const bebidasDisponiveis = [
+  {
+    nomeBebida: "Coca-Cola",
+    tamanhos: {
+      lata: 5,
+      '600ml': 8,
+      '1 litro': 10,
+    },
+  },
+  {
+    nomeBebida: "Guaraná",
+    tamanhos: {
+      lata: 5,
+      '600ml': 8,
+      '1 litro': 10,
+    },
+  },
+  {
+    nomeBebida: "Suco de Laranja",
+    tamanhos: {
+      '300ml': 7,
+      '500ml': 9,
+    },
+  },
+  {
+    nomeBebida: "Água Mineral",
+    tamanhos: {
+      '500ml': 4,
+      '1 litro': 6,
+    },
+  },
+];
 
 export default function Pedidos() {
   const [telefone, setTelefone] = useState('');
@@ -53,7 +83,8 @@ export default function Pedidos() {
   const [quantidadePizza, setQuantidadePizza] = useState(1);
   const [tamanhoPizza, setTamanhoPizza] = useState('');
   const [querBebida, setQuerBebida] = useState(false);
-  const [saborBebida, setSaborBebida] = useState('');
+  const [nomeBebida, setNomeBebida] = useState('');
+  const [tamanhoBebida, setTamanhoBebida] = useState('');
   const [quantidadeBebida, setQuantidadeBebida] = useState(1);
   const [formaPagamento, setFormaPagamento] = useState('');
   const [status, setStatus] = useState('pendente');
@@ -61,10 +92,9 @@ export default function Pedidos() {
   const [erros, setErros] = useState({});
 
   const pizzaSelecionada = saboresPizza.find((p) => p.sabor === saborPizza);
+  
+  const bebidaSelecionada = bebidasDisponiveis.find((b) => b.nomeBebida === nomeBebida);
 
-  const saboresFiltradosPizza = saboresPizza.filter((pizza) =>
-    pizza.sabor.toLowerCase().includes(saborPizza.toLowerCase())
-  );
   useEffect(() => {
     const telefoneLimpo = telefone.replace(/\D/g, "");
     const cliente = clientesFake[telefoneLimpo];
@@ -77,18 +107,29 @@ export default function Pedidos() {
       setEndereco("");
     }
   }, [telefone]);
+
   useEffect(() => {
     let valorPizza = 0;
     if (pizzaSelecionada && tamanhoPizza) {
       valorPizza = pizzaSelecionada.tamanhos[tamanhoPizza] * quantidadePizza;
     }
     
-    const valorBebida = querBebida && saborBebida 
-      ? precoBebida * quantidadeBebida 
-      : 0;
+    let valorBebida = 0;
+    if (querBebida && bebidaSelecionada && tamanhoBebida) {
+      valorBebida = bebidaSelecionada.tamanhos[tamanhoBebida] * quantidadeBebida;
+    }
       
     setTotal(valorPizza + valorBebida);
-  }, [pizzaSelecionada, tamanhoPizza, quantidadePizza, querBebida, saborBebida, quantidadeBebida]);
+  }, [
+    pizzaSelecionada, 
+    tamanhoPizza, 
+    quantidadePizza, 
+    querBebida, 
+    bebidaSelecionada,
+    tamanhoBebida,
+    quantidadeBebida
+  ]);
+
   const handleTelefoneChange = (e) => {
     const value = e.target.value.replace(/\D/g, "").substring(0, 11);
     setTelefone(value);
@@ -101,23 +142,23 @@ export default function Pedidos() {
     if (!telefone) novosErros.telefone = "Telefone é obrigatório";
     if (!saborPizza) novosErros.saborPizza = "Selecione um sabor de pizza";
     if (!tamanhoPizza) novosErros.tamanhoPizza = "Selecione um tamanho";
-    if (querBebida && !saborBebida) novosErros.saborBebida = "Informe o sabor da bebida";
+    if (querBebida && !nomeBebida) novosErros.nomeBebida = "Selecione uma bebida";
+    if (querBebida && !tamanhoBebida) novosErros.tamanhoBebida = "Selecione o tamanho da bebida";
     if (!formaPagamento) novosErros.formaPagamento = "Selecione a forma de pagamento";
     
     setErros(novosErros);
     
     if (Object.keys(novosErros).length === 0) {
-      alert("Pedido realizado com sucesso!");
+      alert(`Pedido de ${saborPizza}${querBebida ? ` + ${nomeBebida}` : ''} realizado com sucesso!`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 pb-20">
       <Header />
       <div className="pt-20 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         <form className="space-y-4" onSubmit={handleSubmit}>
           <h1 className="text-2xl font-bold text-[#B72A23] mb-6">Novo Pedido</h1>
-
           <div>
             <label className="block font-semibold">Telefone do Cliente</label>
             <input
@@ -152,21 +193,21 @@ export default function Pedidos() {
               required
             />
           </div>
+
           <div className="border-t pt-4">
             <label className="block font-semibold mb-1">Sabor da Pizza</label>
-            <input
-              type="text"
-              list="saboresPizza"
+            <select
               value={saborPizza}
               onChange={(e) => setSaborPizza(e.target.value)}
               className={`w-full p-2 rounded border ${erros.saborPizza ? "border-red-500" : ""}`}
-              placeholder="Digite o sabor"
-            />
-            <datalist id="saboresPizza">
-              {saboresFiltradosPizza.map((pizza) => (
-                <option key={pizza.sabor} value={pizza.sabor} />
+            >
+              <option value="">Selecione um sabor</option>
+              {saboresPizza.map((pizza) => (
+                <option key={pizza.sabor} value={pizza.sabor}>
+                  {pizza.sabor}
+                </option>
               ))}
-            </datalist>
+            </select>
             {erros.saborPizza && <p className="text-red-500 text-sm">{erros.saborPizza}</p>}
 
             <div className="mt-3">
@@ -189,18 +230,19 @@ export default function Pedidos() {
                   className={`w-full p-2 rounded border ${erros.tamanhoPizza ? "border-red-500" : ""}`}
                 >
                   <option value="">Selecione</option>
-                  {Object.entries(pizzaSelecionada.tamanhos).map(([key, value]) => (
-                    <option key={key} value={key}>
-                      {key.charAt(0).toUpperCase() + key.slice(1)} - R$ {value.toFixed(2)}
+                  {Object.entries(pizzaSelecionada.tamanhos).map(([tamanho, preco]) => (
+                    <option key={tamanho} value={tamanho}>
+                      {tamanho.charAt(0).toUpperCase() + tamanho.slice(1)} - R$ {preco.toFixed(2)}
                     </option>
                   ))}
                 </select>
               ) : (
-                <p className="text-sm text-gray-500">Selecione um sabor válido primeiro</p>
+                <p className="text-sm text-gray-500">Selecione um sabor primeiro</p>
               )}
               {erros.tamanhoPizza && <p className="text-red-500 text-sm">{erros.tamanhoPizza}</p>}
             </div>
           </div>
+
           <div className="border-t pt-4">
             <label className="block font-semibold mb-2">Deseja bebida?</label>
             <div className="flex gap-4">
@@ -209,7 +251,11 @@ export default function Pedidos() {
                   type="radio"
                   name="bebida"
                   checked={querBebida === true}
-                  onChange={() => setQuerBebida(true)}
+                  onChange={() => {
+                    setQuerBebida(true);
+                    setNomeBebida('');
+                    setTamanhoBebida('');
+                  }}
                 />
                 Sim
               </label>
@@ -218,7 +264,11 @@ export default function Pedidos() {
                   type="radio"
                   name="bebida"
                   checked={querBebida === false}
-                  onChange={() => setQuerBebida(false)}
+                  onChange={() => {
+                    setQuerBebida(false);
+                    setNomeBebida('');
+                    setTamanhoBebida('');
+                  }}
                 />
                 Não
               </label>
@@ -227,14 +277,44 @@ export default function Pedidos() {
             {querBebida && (
               <div className="mt-3 space-y-3">
                 <div>
-                  <label className="block font-semibold">Sabor da bebida</label>
-                  <input
-                    type="text"
-                    value={saborBebida}
-                    onChange={(e) => setSaborBebida(e.target.value)}
-                    className={`w-full p-2 rounded border ${erros.saborBebida ? "border-red-500" : ""}`}
-                  />
-                  {erros.saborBebida && <p className="text-red-500 text-sm">{erros.saborBebida}</p>}
+                  <label className="block font-semibold">Bebida</label>
+                  <select
+                    value={nomeBebida}
+                    onChange={(e) => {
+                      setNomeBebida(e.target.value);
+                      setTamanhoBebida('');
+                    }}
+                    className={`w-full p-2 rounded border ${erros.nomeBebida ? "border-red-500" : ""}`}
+                  >
+                    <option value="">Selecione uma bebida</option>
+                    {bebidasDisponiveis.map((bebida) => (
+                      <option key={bebida.nomeBebida} value={bebida.nomeBebida}>
+                        {bebida.nomeBebida}
+                      </option>
+                    ))}
+                  </select>
+                  {erros.nomeBebida && <p className="text-red-500 text-sm">{erros.nomeBebida}</p>}
+                </div>
+
+                <div>
+                  <label className="block font-semibold">Tamanho</label>
+                  {bebidaSelecionada ? (
+                    <select
+                      value={tamanhoBebida}
+                      onChange={(e) => setTamanhoBebida(e.target.value)}
+                      className={`w-full p-2 rounded border ${erros.tamanhoBebida ? "border-red-500" : ""}`}
+                    >
+                      <option value="">Selecione</option>
+                      {Object.entries(bebidaSelecionada.tamanhos).map(([tamanho, preco]) => (
+                        <option key={tamanho} value={tamanho}>
+                          {tamanho} - R$ {preco.toFixed(2)}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="text-sm text-gray-500">Selecione uma bebida primeiro</p>
+                  )}
+                  {erros.tamanhoBebida && <p className="text-red-500 text-sm">{erros.tamanhoBebida}</p>}
                 </div>
 
                 <div>
@@ -250,6 +330,7 @@ export default function Pedidos() {
               </div>
             )}
           </div>
+
           <div className="border-t pt-4">
             <label className="block font-semibold mb-1">Forma de Pagamento</label>
             <select
@@ -288,6 +369,7 @@ export default function Pedidos() {
             Finalizar Pedido
           </button>
         </form>
+
         <div className="bg-white p-6 rounded shadow-md">
           <h2 className="text-xl font-bold mb-4">Resumo do Pedido</h2>
           
@@ -299,13 +381,25 @@ export default function Pedidos() {
             </p>
           )}
           
-          {querBebida && saborBebida && (
+          {querBebida && bebidaSelecionada && tamanhoBebida && (
             <p className="mt-2">
-              <strong>Bebida:</strong> {quantidadeBebida}x {saborBebida} - R$ {(precoBebida * quantidadeBebida).toFixed(2)}
+              <strong>Bebida:</strong> {quantidadeBebida}x {bebidaSelecionada.nomeBebida} (
+              {tamanhoBebida}
+              ) - R$ {(bebidaSelecionada.tamanhos[tamanhoBebida] * quantidadeBebida).toFixed(2)}
             </p>
           )}
           
           <hr className="my-4" />
+
+          {formaPagamento && (
+            <p className="mt-2">
+                <strong>Pagamento:</strong> {formaPagamento.charAt(0).toUpperCase() + formaPagamento.slice(1)}
+            </p>
+            )}
+            <hr className="my-4" />
+            <p className="text-lg font-bold">
+            Total: <span className="text-green-700">R$ {total.toFixed(2)}</span>
+            </p>
           
           <p className="text-lg font-bold">
             Total: <span className="text-green-700">R$ {total.toFixed(2)}</span>
