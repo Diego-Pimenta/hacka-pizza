@@ -1,27 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import { verifyToken } from '../utils/jwt.handler';
-import { getClientById } from '../services/client.service';
 
-const protectAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const protectAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
     if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
+      res.status(401).json({ message: 'No token provided' });
+      return;
     }
 
     const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
 
-    const client = await getClientById(decoded.id);
-    if (!client) {
-      return res.status(401).json({ message: 'Client not found' });
-    }
-
-    req.client = client;
+    req.user.id = decoded.id;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Unhathorized access' });
+    res.status(401).json({ message: 'Unhathorized' });
   }
 };

@@ -8,27 +8,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+}
+
 model Client {
   id          String  @id @default(uuid())
   name        String
-  cpf         String
-  email       String
-  password    String
-  addressId   String
-  phoneNumber String
+  cpf         String  @unique
+  phoneNumber String  @unique
   active      Boolean @default(true)
-  address     Address @relation(fields: [addressId], references: [id])
-  orders      Order[]
+
+  address Address[]
+  orders  Order[]
 }
 
 model Address {
-  id       String   @id @default(uuid())
+  id       String  @id @default(uuid())
   address  String
   region   String
   postCode String
   country  String
-  clients  Client[]
-  orders   Order[]
+  clientId String?
+
+  orders Order[]
+  client Client? @relation(fields: [clientId], references: [id])
 }
 
 model Order {

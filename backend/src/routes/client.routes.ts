@@ -9,11 +9,10 @@ router.get('/', ClientController.getClients);
 router.get('/:id', ClientController.checkExistingClient, ClientController.getClientById);
 router.put(
   '/:id',
-  protectAuth,
   ClientController.validateClientData,
   ClientController.checkExistingClient,
   ClientController.updateClient
 );
-router.delete('/:id', protectAuth, ClientController.checkExistingClient, ClientController.deleteClient);
+router.delete('/:id', ClientController.checkExistingClient, ClientController.deleteClient);
 
 export default router;

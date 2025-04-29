@@ -3,8 +3,9 @@ import * as ClientService from '../services/client.service';
 import { clientSchema } from '../utils/zod';
 
 export const createClient = async (req: Request, res: Response, next: NextFunction) => {
+  const data = clientSchema.parse(req.body);
+
   try {
-    const data = req.body;
     const client = await ClientService.createClient(data);
     res.status(201).json(client);
   } catch (error) {
@@ -32,9 +33,10 @@ export const getClientById = async (req: Request, res: Response, next: NextFunct
 };
 
 export const updateClient = async (req: Request, res: Response, next: NextFunction) => {
+  const data = clientSchema.parse(req.body);
+
   try {
     const { id } = req.params;
-    const data = req.body;
     const client = await ClientService.updateClient(id, data);
     res.status(200).json(client);
   } catch (error) {
