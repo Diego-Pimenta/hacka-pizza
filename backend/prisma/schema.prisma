@@ -1,17 +1,84 @@
 generator client {
-    provider = "prisma-client-js"
-    output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model User {
-    id       String @id @default(uuid())
-    name     String
-    email    String @unique
-    password String
-    active   Int    @default(1)
+model Client {
+  id          String    @id @default(uuid())
+  name        String
+  cpf         String
+  email       String
+  password    String
+  addressId   String
+  phoneNumber String
+  active      Boolean   @default(true)
+  address     Address   @relation(fields: [addressId], references: [id])
+  orders      Order[]
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  address   String
+  region    String
+  postCode  String
+  country   String
+  clients   Client[]
+  orders    Order[]
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  clientId       String
+  addressId      String
+  paymentMethod  PaymentMethod
+  status         OrderStatus
+  total          Float
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  client         Client      @relation(fields: [clientId], references: [id])
+  address        Address     @relation(fields: [addressId], references: [id])
+  orderItems     OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  subTotal  Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  name        String
+  description String
+  category    Category
+  size        String
+  price       Float
+  orderItems  OrderItem[]
+}
+
+enum PaymentMethod {
+  CASH
+  PIX
+  DEBIT
+  CREDIT
+}
+
+enum OrderStatus {
+  PENDING
+  DELIVERED
+  CANCELLED
+}
+
+enum Category {
+  DRINK
+  PIZZA
 }
