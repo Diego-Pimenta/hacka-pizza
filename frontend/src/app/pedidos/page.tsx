@@ -156,7 +156,7 @@ export default function Pedidos() {
   return (
     <div className="min-h-screen bg-gray-100 pb-20">
       <Header />
-      <div className="pt-20 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="pt-20 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 font-poppins">
         <form className="space-y-4" onSubmit={handleSubmit}>
           <h1 className="text-2xl font-bold text-[#B72A23] mb-6">Novo Pedido</h1>
           <div>
