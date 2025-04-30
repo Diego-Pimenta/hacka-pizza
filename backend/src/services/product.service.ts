@@ -39,3 +39,14 @@ export const deleteProduct = async (id: string) => {
     where: { id },
   });
 };
+
+export const getProductByName = async (name: string) => {
+  return await prisma.product.findMany({
+    where: {
+      name: {
+        contains: name,
+        mode: 'insensitive',
+      },
+    },
+  });
+};

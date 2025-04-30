@@ -75,3 +75,26 @@ export const validateProductData = (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+
+export const getProductByName = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name } = req.query;
+
+    if (!name || typeof name !== 'string') {
+        res.status(400).json({
+        success: false,
+        error: { message: 'Query param "name" is required and must be a string' },
+      });
+      return;
+    }
+
+    const products = await ProductService.getProductByName(name);
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    next(error);
+  }
+};
