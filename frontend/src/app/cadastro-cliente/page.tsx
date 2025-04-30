@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo } from 'react';
-import Header from "@/components/Header";
+import { Header } from "@/components/header";
 
 interface Cliente {
   id: number;

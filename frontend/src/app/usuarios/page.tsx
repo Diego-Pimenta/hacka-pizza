@@ -1,77 +1,77 @@
 //id
-//nome
+//name
 //email
-//senha
+//password
 
 "use client";
 import { useState, useMemo } from 'react';
-import Header from "@/components/Header";
+import { Header } from "@/components/header";
 
-interface Usuario {
+interface Users {
   id: number;
-  nome: string;
+  name: string;
   email: string;
-  senha: string;
+  password: string;
 }
 
-const usuariosIniciais: Usuario[] = [
+const initialUsers: Users[] = [
   {
     id: 1,
-    nome: "Admin",
+    name: "Admin",
     email: "admin@email.com",
-    senha: "123456"
+    password: "123456"
   },
   {
     id: 2,
-    nome: "Gerente",
+    name: "Gerente",
     email: "gerente@email.com",
-    senha: "654321"
+    password: "654321"
   },
   {
     id: 3,
-    nome: "Atendente",
+    name: "Atendente",
     email: "atendente@email.com",
-    senha: "112233"
+    password: "112233"
   },
   {
     id: 4,
-    nome: "Supervisor",
+    name: "Supervisor",
     email: "supervisor@email.com",
-    senha: "332211"
+    password: "332211"
   }
 ];
 
-export default function CadastroUsuarios() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosIniciais);
-  const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
-  const [formData, setFormData] = useState<Omit<Usuario, 'id'>>({
-    nome: '',
+export default function UserRegistration() {
+  const [users, setUsers] = useState<Users[]>(initialUsers);
+  const [usersEdit, setusersEdit] = useState<Users | null>(null);
+  const [formData, setFormData] = useState<Omit<Users, 'id'>>({
+    name: '',
     email: '',
-    senha: ''
+    password: ''
   });
-  const [busca, setBusca] = useState('');
-  const [modoBusca, setModoBusca] = useState<'todos' | 'nome' | 'email'>('todos');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [search, setSearch] = useState('');
+  const [searchMode, setSearchMode] = useState<'todos' | 'name' | 'email'>('todos');
+  const [mostrarpassword, setMostrarpassword] = useState(false);
 
-  const usuariosFiltrados = useMemo(() => {
-    if (!busca.trim()) return usuarios;
+  const filteredUsers = useMemo(() => {
+    if (!search.trim()) return users;
     
-    const termo = busca.toLowerCase().trim();
+    const term = search.toLowerCase().trim();
     
-    return usuarios.filter(usuario => {
-      switch (modoBusca) {
-        case 'nome':
-          return usuario.nome.toLowerCase().includes(termo);
+    return users.filter(user => {
+      switch (searchMode) {
+        case 'name':
+          return user.name.toLowerCase().includes(term);
         case 'email':
-          return usuario.email.toLowerCase().includes(termo);
+          return user.email.toLowerCase().includes(term);
         default:
           return (
-            usuario.nome.toLowerCase().includes(termo) ||
-            usuario.email.toLowerCase().includes(termo)
+            user.name.toLowerCase().includes(term) ||
+            user.email.toLowerCase().includes(term)
           );
       }
     });
-  }, [usuarios, busca, modoBusca]);
+  }, [users, search, searchMode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -84,46 +84,46 @@ export default function CadastroUsuarios() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if (!formData.nome || !formData.email || !formData.senha) {
+    if (!formData.name || !formData.email || !formData.password) {
       alert('Preencha todos os campos obrigatórios');
       return;
     }
     
-    if (usuarioEditando) {
-      setUsuarios(usuarios.map(usuario => 
-        usuario.id === usuarioEditando.id ? { 
+    if (usersEdit) {
+      setUsers(users.map(user => 
+        user.id === usersEdit.id ? { 
           ...formData, 
-          id: usuarioEditando.id 
-        } : usuario
+          id: usersEdit.id 
+        } : user
       ));
     } else {
-      const novoUsuario: Usuario = {
+      const newUser: Users = {
         ...formData,
         id: Date.now()
       };
-      setUsuarios([...usuarios, novoUsuario]);
+      setUsers([...users, newUser]);
     }
     
     setFormData({
-      nome: '',
+      name: '',
       email: '',
-      senha: ''
+      password: ''
     });
-    setUsuarioEditando(null);
+    setusersEdit(null);
   };
 
-  const handleEditar = (usuario: Usuario) => {
-    setUsuarioEditando(usuario);
+  const handleEditar = (user: Users) => {
+    setusersEdit(user);
     setFormData({
-      nome: usuario.nome,
-      email: usuario.email,
-      senha: usuario.senha
+      name: user.name,
+      email: user.email,
+      password: user.password
     });
   };
 
   const handleExcluir = (id: number) => {
     if (confirm('Tem certeza que deseja excluir este usuário?')) {
-      setUsuarios(usuarios.filter(usuario => usuario.id !== id));
+      setUsers(users.filter(user => user.id !== id));
     }
   };
 
@@ -135,7 +135,7 @@ export default function CadastroUsuarios() {
         
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md mb-8">
           <h2 className="text-xl font-semibold mb-4">
-            {usuarioEditando ? 'Editar Usuário' : 'Novo Usuário'}
+            {usersEdit ? 'Editar Usuário' : 'Novo Usuário'}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -143,8 +143,8 @@ export default function CadastroUsuarios() {
               <label className="block font-semibold mb-1">Nome*</label>
               <input
                 type="text"
-                name="nome"
-                value={formData.nome}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
                 required
@@ -167,9 +167,9 @@ export default function CadastroUsuarios() {
               <label className="block font-semibold mb-1">Senha*</label>
               <div className="relative">
                 <input
-                  type={mostrarSenha ? "text" : "password"}
-                  name="senha"
-                  value={formData.senha}
+                  type={mostrarpassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
                   onChange={handleChange}
                   className="w-full p-2 rounded border pr-10"
                   required
@@ -177,10 +177,10 @@ export default function CadastroUsuarios() {
                 />
                 <button
                   type="button"
-                  onClick={() => setMostrarSenha(!mostrarSenha)}
+                  onClick={() => setMostrarpassword(!mostrarpassword)}
                   className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
                 >
-                  {mostrarSenha ? (
+                  {mostrarpassword ? (
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     </svg>
@@ -201,18 +201,18 @@ export default function CadastroUsuarios() {
               type="submit"
               className="bg-[#B72A23] text-white py-2 px-4 rounded hover:bg-[#a0251e] transition"
             >
-              {usuarioEditando ? 'Atualizar Usuário' : 'Cadastrar Usuário'}
+              {usersEdit ? 'Atualizar Usuário' : 'Cadastrar Usuário'}
             </button>
             
-            {usuarioEditando && (
+            {usersEdit && (
               <button
                 type="button"
                 onClick={() => {
-                  setUsuarioEditando(null);
+                  setusersEdit(null);
                   setFormData({
-                    nome: '',
+                    name: '',
                     email: '',
-                    senha: ''
+                    password: ''
                   });
                 }}
                 className="ml-2 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
@@ -230,10 +230,10 @@ export default function CadastroUsuarios() {
             <div className="relative flex-grow">
               <input
                 type="text"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-full p-2 rounded border pl-10"
-                placeholder={`Buscar por ${modoBusca === 'todos' ? 'nome ou email' : modoBusca}...`}
+                placeholder={`Buscar por ${searchMode === 'todos' ? 'name ou email' : searchMode}...`}
               />
               <svg
                 className="absolute left-3 top-3 h-5 w-5 text-gray-400"
@@ -251,24 +251,24 @@ export default function CadastroUsuarios() {
             </div>
             
             <select
-              value={modoBusca}
-              onChange={(e) => setModoBusca(e.target.value as 'todos' | 'nome' | 'email')}
+              value={searchMode}
+              onChange={(e) => setSearchMode(e.target.value as 'todos' | 'name' | 'email')}
               className="p-2 rounded border bg-white"
             >
               <option value="todos">Todos os Campos</option>
-              <option value="nome">Nome</option>
+              <option value="name">name</option>
               <option value="email">Email</option>
             </select>
           </div>
           
-          {busca && (
+          {search && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                {usuariosFiltrados.length} usuário(s) encontrado(s)
+                {filteredUsers.length} usuário(s) encontrado(s)
               </p>
-              {busca && (
+              {search && (
                 <button
-                  onClick={() => setBusca('')}
+                  onClick={() => setSearch('')}
                   className="text-sm text-[#B72A23] hover:underline"
                 >
                   Limpar busca
@@ -281,23 +281,23 @@ export default function CadastroUsuarios() {
         <div className="bg-white p-6 rounded shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {busca ? 'Resultados da Busca' : 'Todos os Usuários'}
+              {search ? 'Resultados da Busca' : 'Todos os Usuários'}
             </h2>
-            {busca && (
+            {search && (
               <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
-                Filtro: {modoBusca === 'todos' ? 'todos os campos' : modoBusca}
+                Filtro: {searchMode === 'todos' ? 'todos os campos' : searchMode}
               </span>
             )}
           </div>
           
-          {usuariosFiltrados.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-2">
-                {busca ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado ainda.'}
+                {search ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado ainda.'}
               </p>
-              {busca && (
+              {search && (
                 <button
-                  onClick={() => setBusca('')}
+                  onClick={() => setSearch('')}
                   className="text-[#B72A23] hover:underline"
                 >
                   Ver todos os usuários
@@ -309,25 +309,25 @@ export default function CadastroUsuarios() {
               <table className="min-w-full bg-white">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="py-2 px-4 border">Nome</th>
+                    <th className="py-2 px-4 border">name</th>
                     <th className="py-2 px-4 border">Email</th>
                     <th className="py-2 px-4 border">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {usuariosFiltrados.map(usuario => (
-                    <tr key={usuario.id} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border">{usuario.nome}</td>
-                      <td className="py-2 px-4 border">{usuario.email}</td>
+                  {filteredUsers.map(user => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="py-2 px-4 border">{user.name}</td>
+                      <td className="py-2 px-4 border">{user.email}</td>
                       <td className="py-2 px-4 border">
                         <button
-                          onClick={() => handleEditar(usuario)}
+                          onClick={() => handleEditar(user)}
                           className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 mr-2"
                         >
                           Editar
                         </button>
                         <button
-                          onClick={() => handleExcluir(usuario.id)}
+                          onClick={() => handleExcluir(user.id)}
                           className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
                         >
                           Excluir
