@@ -25,6 +25,11 @@ router.patch('/:id/status',
   OrderController.updateOrderStatus
 );
 
+router.get('/summary',
+  protectAuth,
+  OrderController.getRevenueSummary
+);
+
 router.delete('/:id', 
   protectAuth,
   OrderController.checkExistingOrder, 

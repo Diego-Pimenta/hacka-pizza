@@ -101,6 +101,29 @@ export const getAllOrders = async () => {
   return orders;
 };
 
+export const getRevenueSummary = async () => {
+  const allOrders = await prisma.order.findMany({
+    select: {
+      status: true,
+      total: true,
+    },
+  });
+
+  const summary = {
+    total: 0,
+    PENDING: 0,
+    DELIVERED: 0,
+    CANCELLED: 0,
+  };
+
+  for (const order of allOrders) {
+    summary.total += order.total;
+    summary[order.status] += order.total;
+  }
+
+  return summary;
+};
+
 export const getOrderById = async (id: string) => {
   const order = await prisma.order.findUnique({
     where: { id },

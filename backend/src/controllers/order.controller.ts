@@ -52,6 +52,15 @@ export const deleteOrder = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+export const getRevenueSummary = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const summary = await OrderService.getRevenueSummary();
+    res.status(200).json({ success: true, data: summary});
+  } catch (error) {
+    next(error)
+  }
+};
+
 export const checkExistingOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id;
