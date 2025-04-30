@@ -1,13 +1,12 @@
 import { prisma } from '../utils/prisma';
+import { Order, Prisma } from '../../generated/prisma';
 import * as OrderItemService from './orderItem.service';
-import { HttpError } from '../utils/http.error';
 
 export const createOrder = async (data: {
   clientId: string;
   addressId: string;
   paymentMethod: string;
   status?: string;
-  total: number;
   orderItems: Array<{
     productId: string;
     quantity: number;
@@ -18,7 +17,7 @@ export const createOrder = async (data: {
   });
 
   if (!client) {
-    throw new HttpError('Client not found', 404);
+    throw new Error('Client not found');
   }
 
   const address = await prisma.address.findUnique({
@@ -26,11 +25,11 @@ export const createOrder = async (data: {
   });
 
   if (!address) {
-    throw new HttpError('Address not found', 404);
+    throw new Error('Address not found');
   }
 
   if (address.clientId && address.clientId !== data.clientId) {
-    throw new HttpError('Address does not belong to this client', 400);
+    throw new Error('Address does not belong to this client');
   }
 
   //inicia uma transação no banco, criando o registro na tabela order e orderItem
@@ -53,12 +52,12 @@ export const createOrder = async (data: {
     let calculatedTotal = 0;
 
     for (const item of data.orderItems) {
-      const createdItem = await OrderItemService.createOrderItem({
+      const createdItem = await OrderItemService.createOrderItem(tx, {
         orderId: newOrder.id,
         productId: item.productId,
         quantity: item.quantity,
-        subTotal: 0, 
       });
+      
 
       calculatedTotal += createdItem.subTotal;
     }
@@ -139,7 +138,7 @@ export const getOrderById = async (id: string) => {
   });
 
   if (!order) {
-    throw new HttpError('Order not found', 404);
+    throw new Error('Order not found');
   }
 
   return order;
@@ -151,15 +150,15 @@ export const updateOrderStatus = async (id: string, status: string) => {
   });
 
   if (!existingOrder) {
-    throw new HttpError('Order not found', 404);
+    throw new Error('Order not found');
   }
 
   if (existingOrder.status === 'CANCELLED') {
-    throw new HttpError('Cannot update a cancelled order', 400);
+    throw new Error('Cannot update a cancelled order');
   }
   
   if (existingOrder.status === 'DELIVERED' && status !== 'DELIVERED') {
-    throw new HttpError('Cannot change status of a delivered order', 400);
+    throw new Error('Cannot change status of a delivered order');
   }
 
   const updatedOrder = await prisma.order.update({
@@ -187,7 +186,7 @@ export const deleteOrder = async (id: string) => {
   });
 
   if (!existingOrder) {
-    throw new HttpError('Order not found', 404);
+    throw new Error('Order not found');
   }
 
   await prisma.$transaction([

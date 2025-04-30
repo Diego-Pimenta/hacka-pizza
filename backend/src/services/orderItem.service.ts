@@ -1,31 +1,35 @@
 import { prisma } from '../utils/prisma';
 import { OrderItem, Prisma } from '../../generated/prisma';
-import { HttpError } from '../utils/http.error';
 
 
-export const createOrderItem = async (data: Prisma.OrderItemUncheckedCreateInput) => {
-    if (data.quantity <= 0) {
-      throw new HttpError('Quantity must be greater than 0', 400);
-    }
+export const createOrderItem = async (
+  tx: Prisma.TransactionClient,
+  data: Omit<Prisma.OrderItemCreateInput, 'order' | 'product' | 'subTotal'> & { orderId: string, productId: string, subTotal?: number }
+) => {
+  if (data.quantity <= 0) {
+    throw new Error('Quantity must be greater than 0');
+  }
 
-    const product = await prisma.product.findUnique({
-      where: { id: data.productId },
-    });
+  const product = await tx.product.findUnique({
+    where: { id: data.productId },
+  });
 
-    if (!product) {
-      throw new HttpError('Product not found', 404);
-    }
+  if (!product) {
+    throw new Error('Product not found');
+  }
 
-    const subTotal = product.price * data.quantity;
+  const subTotal = product.price * data.quantity;
 
-    return await prisma.orderItem.create({
-      data: {
-        ...data,
-        subTotal,
-      },
-    });
-
+  return await tx.orderItem.create({
+    data: {
+      orderId: data.orderId,
+      productId: data.productId,
+      quantity: data.quantity,
+      subTotal,
+    },
+  });
 };
+
 
 
 export const getAllOrderItems = async () => {
@@ -43,7 +47,7 @@ export const getOrderItemById = async (id: string) => {
 export const updateOrderItem = async (id: string, data: Partial<Omit<OrderItem, 'id'>>) => {
   if (data.quantity !== undefined) {
     if (data.quantity <= 0) {
-      throw new HttpError('Quantity must be greater than 0', 400);
+      throw new Error('Quantity must be greater than 0');
     }
 
     if (data.productId !== undefined && data.quantity !== undefined) {
