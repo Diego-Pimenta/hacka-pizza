@@ -2,157 +2,157 @@
 import { useState, useMemo } from 'react';
 import { Header } from "@/components/header";
 
-interface Cliente {
+interface Client {
   id: number;
-  nome: string;
+  name: string;
   cpf: string;
-  telefone: string;
-  rua: string;
-  numero: string;
-  complemento: string;
-  bairro: string;
-  cidade: string;
+  phone: string;
+  street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
 }
 
-const clientesIniciais: Cliente[] = [
+const initialClients: Client[] = [
   {
     id: 1,
-    nome: "João Silva",
+    name: "João Silva",
     cpf: "12345678900",
-    telefone: "(11) 99999-9999",
-    rua: "Rua das Flores",
-    numero: "100",
-    complemento: "Apto 101",
-    bairro: "Centro",
-    cidade: "São Paulo"
+    phone: "(11) 99999-9999",
+    street: "Rua das Flores",
+    number: "100",
+    complement: "Apto 101",
+    neighborhood: "Centro",
+    city: "São Paulo"
   },
   {
     id: 2,
-    nome: "Maria Oliveira",
+    name: "Maria Oliveira",
     cpf: "98765432100",
-    telefone: "(11) 98888-8888",
-    rua: "Avenida Brasil",
-    numero: "200",
-    complemento: "",
-    bairro: "Jardins",
-    cidade: "São Paulo"
+    phone: "(11) 98888-8888",
+    street: "Avenida Brasil",
+    number: "200",
+    complement: "",
+    neighborhood: "Jardins",
+    city: "São Paulo"
   },
   {
     id: 3,
-    nome: "João Pereira",
+    name: "João Pereira",
     cpf: "11122233344",
-    telefone: "(21) 91234-5678",
-    rua: "Rua das Laranjeiras",
-    numero: "300",
-    complemento: "Casa",
-    bairro: "Flamengo",
-    cidade: "Rio de Janeiro"
+    phone: "(21) 91234-5678",
+    street: "Rua das Laranjeiras",
+    number: "300",
+    complement: "Casa",
+    neighborhood: "Flamengo",
+    city: "Rio de Janeiro"
   },
   {
     id: 4,
-    nome: "João Costa",
+    name: "João Costa",
     cpf: "55566677788",
-    telefone: "(31) 97654-3210",
-    rua: "Rua Afonso Pena",
-    numero: "400",
-    complemento: "Apto 402",
-    bairro: "Centro",
-    cidade: "Belo Horizonte"
+    phone: "(31) 97654-3210",
+    street: "Rua Afonso Pena",
+    number: "400",
+    complement: "Apto 402",
+    neighborhood: "Centro",
+    city: "Belo Horizonte"
   },
   {
     id: 5,
-    nome: "Ana Beatriz",
+    name: "Ana Beatriz",
     cpf: "11223344556",
-    telefone: "(41) 99876-5432",
-    rua: "Rua XV de Novembro",
-    numero: "500",
-    complemento: "",
-    bairro: "Batel",
-    cidade: "Curitiba"
+    phone: "(41) 99876-5432",
+    street: "Rua XV de Novembro",
+    number: "500",
+    complement: "",
+    neighborhood: "Batel",
+    city: "Curitiba"
   },
   {
     id: 6,
-    nome: "Carlos Eduardo",
+    name: "Carlos Eduardo",
     cpf: "66778899000",
-    telefone: "(51) 98765-4321",
-    rua: "Avenida Ipiranga",
-    numero: "600",
-    complemento: "Sala 5",
-    bairro: "Centro",
-    cidade: "Porto Alegre"
+    phone: "(51) 98765-4321",
+    street: "Avenida Ipiranga",
+    number: "600",
+    complement: "Sala 5",
+    neighborhood: "Centro",
+    city: "Porto Alegre"
   },
   {
     id: 7,
-    nome: "Fernanda Lima",
+    name: "Fernanda Lima",
     cpf: "44332211009",
-    telefone: "(85) 96543-2100",
-    rua: "Rua dos Coqueiros",
-    numero: "700",
-    complemento: "Bloco B",
-    bairro: "Meireles",
-    cidade: "Fortaleza"
+    phone: "(85) 96543-2100",
+    street: "rua dos Coqueiros",
+    number: "700",
+    complement: "Bloco B",
+    neighborhood: "Meireles",
+    city: "Fortaleza"
   },
   {
     id: 8,
-    nome: "Mariana Rocha",
+    name: "Mariana Rocha",
     cpf: "33445566778",
-    telefone: "(71) 99812-3456",
-    rua: "Ladeira da Barra",
-    numero: "800",
-    complemento: "Cobertura",
-    bairro: "Barra",
-    cidade: "Salvador"
+    phone: "(71) 99812-3456",
+    street: "Ladeira da Barra",
+    number: "800",
+    complement: "Cobertura",
+    neighborhood: "Barra",
+    city: "Salvador"
   }
 ];
 
-export default function CadastroClientes() {
-  const [clientes, setClientes] = useState<Cliente[]>(clientesIniciais);
-  const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
-  const [formData, setFormData] = useState<Omit<Cliente, 'id'>>({
-    nome: '',
+export default function CustomerRegistration() {
+  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [clientEditing, setClientEditing] = useState<Client | null>(null);
+  const [formData, setFormData] = useState<Omit<Client, 'id'>>({
+    name: '',
     cpf: '',
-    telefone: '',
-    rua: '',
-    numero: '',
-    complemento: '',
-    bairro: '',
-    cidade: ''
+    phone: '',
+    street: '',
+    number: '',
+    complement: '',
+    neighborhood: '',
+    city: ''
   });
-  const [busca, setBusca] = useState('');
-  const [modoBusca, setModoBusca] = useState<'todos' | 'nome' | 'cpf' | 'telefone' | 'endereco'>('todos');
+  const [search, setSearch] = useState('');
+  const [seachMode, setSearchMode] = useState<'todos' | 'nome' | 'cpf' | 'telefone' | 'endereco'>('todos');
 
-  const clientesFiltrados = useMemo(() => {
-    if (!busca.trim()) return clientes;
+  const filteredClients = useMemo(() => {
+    if (!search.trim()) return clients;
     
-    const termo = busca.toLowerCase().trim();
-    const numeros = busca.replace(/\D/g, '');
+    const term = search.toLowerCase().trim();
+    const numbers = search.replace(/\D/g, '');
 
-    return clientes.filter(cliente => {
-      switch (modoBusca) {
+    return clients.filter(client => {
+      switch (seachMode) {
         case 'nome':
-          return cliente.nome.toLowerCase().includes(termo);
+          return client.name.toLowerCase().includes(term);
         case 'cpf':
-          return cliente.cpf.includes(numeros);
+          return client.cpf.includes(numbers);
         case 'telefone':
-          return cliente.telefone.includes(numeros);
+          return client.phone.includes(numbers);
         case 'endereco':
           return (
-            cliente.rua.toLowerCase().includes(termo) ||
-            cliente.bairro.toLowerCase().includes(termo) ||
-            cliente.cidade.toLowerCase().includes(termo)
+            client.street.toLowerCase().includes(term) ||
+            client.neighborhood.toLowerCase().includes(term) ||
+            client.city.toLowerCase().includes(term)
           );
         default:
           return (
-            cliente.nome.toLowerCase().includes(termo) ||
-            cliente.cpf.includes(numeros) ||
-            cliente.telefone.includes(numeros) ||
-            cliente.rua.toLowerCase().includes(termo) ||
-            cliente.bairro.toLowerCase().includes(termo) ||
-            cliente.cidade.toLowerCase().includes(termo)
+            client.name.toLowerCase().includes(term) ||
+            client.cpf.includes(numbers) ||
+            client.phone.includes(numbers) ||
+            client.street.toLowerCase().includes(term) ||
+            client.neighborhood.toLowerCase().includes(term) ||
+            client.city.toLowerCase().includes(term)
           );
       }
     });
-  }, [clientes, busca, modoBusca]);
+  }, [clients, search, seachMode]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -180,8 +180,8 @@ export default function CadastroClientes() {
     }));
   };
 
-  const formatarTelefone = (telefone: string): string => {
-    return telefone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  const formatarTelefone = (phone: string): string => {
+    return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -192,54 +192,54 @@ export default function CadastroClientes() {
       return;
     }
     
-    if (clienteEditando) {
-      setClientes(clientes.map(cliente => 
-        cliente.id === clienteEditando.id ? { 
+    if (clientEditing) {
+      setClients(clients.map(client => 
+        client.id === clientEditing.id ? { 
           ...formData, 
-          id: clienteEditando.id,
+          id: clientEditing.id,
           cpf: formData.cpf,
-          telefone: formatarTelefone(formData.telefone.replace(/\D/g, ''))
-        } : cliente
+          phone: formatarTelefone(formData.phone.replace(/\D/g, ''))
+        } : client
       ));
     } else {
-      const novoCliente: Cliente = {
+      const newClient: Client = {
         ...formData,
         id: Date.now(),
-        telefone: formatarTelefone(formData.telefone.replace(/\D/g, ''))
+        phone: formatarTelefone(formData.phone.replace(/\D/g, ''))
       };
-      setClientes([...clientes, novoCliente]);
+      setClients([...clients, newClient]);
     }
     
     setFormData({
-      nome: '',
+      name: '',
       cpf: '',
-      telefone: '',
-      rua: '',
-      numero: '',
-      complemento: '',
-      bairro: '',
-      cidade: ''
+      phone: '',
+      street: '',
+      number: '',
+      complement: '',
+      neighborhood: '',
+      city: ''
     });
-    setClienteEditando(null);
+    setClientEditing(null);
   };
 
-  const handleEditar = (cliente: Cliente) => {
-    setClienteEditando(cliente);
+  const handleEdit = (client: Client) => {
+    setClientEditing(client);
     setFormData({
-      nome: cliente.nome,
-      cpf: cliente.cpf,
-      telefone: cliente.telefone,
-      rua: cliente.rua,
-      numero: cliente.numero,
-      complemento: cliente.complemento,
-      bairro: cliente.bairro,
-      cidade: cliente.cidade
+      name: client.name,
+      cpf: client.cpf,
+      phone: client.phone,
+      street: client.street,
+      number: client.number,
+      complement: client.complement,
+      neighborhood: client.neighborhood,
+      city: client.city
     });
   };
 
-  const handleExcluir = (id: number) => {
+  const handleDelete = (id: number) => {
     if (confirm('Tem certeza que deseja excluir este cliente?')) {
-      setClientes(clientes.filter(cliente => cliente.id !== id));
+      setClients(clients.filter(client => client.id !== id));
     }
   };
 
@@ -251,7 +251,7 @@ export default function CadastroClientes() {
         
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md mb-8">
           <h2 className="text-xl font-semibold mb-4">
-            {clienteEditando ? 'Editar Cliente' : 'Novo Cliente'}
+            {clientEditing ? 'Editar Cliente' : 'Novo Cliente'}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -260,7 +260,7 @@ export default function CadastroClientes() {
               <input
                 type="text"
                 name="nome"
-                value={formData.nome}
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
                 required
@@ -291,7 +291,7 @@ export default function CadastroClientes() {
               <input
                 type="text"
                 name="telefone"
-                value={formData.telefone}
+                value={formData.phone}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
                 placeholder="(00) 00000-0000"
@@ -304,7 +304,7 @@ export default function CadastroClientes() {
               <input
                 type="text"
                 name="rua"
-                value={formData.rua}
+                value={formData.street}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
                 required
@@ -316,7 +316,7 @@ export default function CadastroClientes() {
               <input
                 type="text"
                 name="numero"
-                value={formData.numero}
+                value={formData.number}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
                 required
@@ -328,7 +328,7 @@ export default function CadastroClientes() {
               <input
                 type="text"
                 name="complemento"
-                value={formData.complemento}
+                value={formData.complement}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
               />
@@ -339,7 +339,7 @@ export default function CadastroClientes() {
               <input
                 type="text"
                 name="bairro"
-                value={formData.bairro}
+                value={formData.neighborhood}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
                 required
@@ -351,7 +351,7 @@ export default function CadastroClientes() {
               <input
                 type="text"
                 name="cidade"
-                value={formData.cidade}
+                value={formData.city}
                 onChange={handleChange}
                 className="w-full p-2 rounded border"
                 required
@@ -365,23 +365,23 @@ export default function CadastroClientes() {
               className="bg-[#B72A23] text-white py-2 px-4 rounded hover:bg-[#a0251e] transition"
               disabled={formData.cpf.length > 0 && formData.cpf.length !== 11}
             >
-              {clienteEditando ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
+              {clientEditing ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
             </button>
             
-            {clienteEditando && (
+            {clientEditing && (
               <button
                 type="button"
                 onClick={() => {
-                  setClienteEditando(null);
+                  setClientEditing(null);
                   setFormData({
-                    nome: '',
+                    name: '',
                     cpf: '',
-                    telefone: '',
-                    rua: '',
-                    numero: '',
-                    complemento: '',
-                    bairro: '',
-                    cidade: ''
+                    phone: '',
+                    street: '',
+                    number: '',
+                    complement: '',
+                    neighborhood: '',
+                    city: ''
                   });
                 }}
                 className="ml-2 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
@@ -399,10 +399,10 @@ export default function CadastroClientes() {
             <div className="relative flex-grow">
               <input
                 type="text"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-full p-2 rounded border pl-10"
-                placeholder={`Buscar por ${modoBusca === 'todos' ? 'qualquer campo' : modoBusca}...`}
+                placeholder={`Buscar por ${seachMode === 'todos' ? 'qualquer campo' : seachMode}...`}
               />
               <svg
                 className="absolute left-3 top-3 h-5 w-5 text-gray-400"
@@ -420,8 +420,8 @@ export default function CadastroClientes() {
             </div>
             
             <select
-              value={modoBusca}
-              onChange={(e) => setModoBusca(e.target.value as 'todos' | 'nome' | 'cpf' | 'telefone' | 'endereco')}
+              value={seachMode}
+              onChange={(e) => setSearchMode(e.target.value as 'todos' | 'nome' | 'cpf' | 'telefone' | 'endereco')}
               className="p-2 rounded border bg-white"
             >
               <option value="todos">Todos os Campos</option>
@@ -432,14 +432,14 @@ export default function CadastroClientes() {
             </select>
           </div>
           
-          {busca && (
+          {search && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                {clientesFiltrados.length} cliente(s) encontrado(s)
+                {filteredClients.length} cliente(s) encontrado(s)
               </p>
-              {busca && (
+              {search && (
                 <button
-                  onClick={() => setBusca('')}
+                  onClick={() => setSearch('')}
                   className="text-sm text-[#B72A23] hover:underline"
                 >
                   Limpar busca
@@ -452,23 +452,23 @@ export default function CadastroClientes() {
         <div className="bg-white p-6 rounded shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {busca ? 'Resultados da Busca' : 'Todos os Clientes'}
+              {search ? 'Resultados da Busca' : 'Todos os Clientes'}
             </h2>
-            {busca && (
+            {search && (
               <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
-                Filtro: {modoBusca === 'todos' ? 'todos os campos' : modoBusca}
+                Filtro: {seachMode === 'todos' ? 'todos os campos' : seachMode}
               </span>
             )}
           </div>
           
-          {clientesFiltrados.length === 0 ? (
+          {filteredClients.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-2">
-                {busca ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado ainda.'}
+                {search ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado ainda.'}
               </p>
-              {busca && (
+              {search && (
                 <button
-                  onClick={() => setBusca('')}
+                  onClick={() => setSearch('')}
                   className="text-[#B72A23] hover:underline"
                 >
                   Ver todos os clientes
@@ -488,24 +488,24 @@ export default function CadastroClientes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {clientesFiltrados.map(cliente => (
-                    <tr key={cliente.id} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border">{cliente.nome}</td>
-                      <td className="py-2 px-4 border">{formatCpfDisplay(cliente.cpf)}</td>
-                      <td className="py-2 px-4 border">{cliente.telefone}</td>
+                  {filteredClients.map(client => (
+                    <tr key={client.id} className="hover:bg-gray-50">
+                      <td className="py-2 px-4 border">{client.name}</td>
+                      <td className="py-2 px-4 border">{formatCpfDisplay(client.cpf)}</td>
+                      <td className="py-2 px-4 border">{client.phone}</td>
                       <td className="py-2 px-4 border">
-                        {cliente.rua}, {cliente.numero}
-                        {cliente.complemento && `, ${cliente.complemento}`} - {cliente.bairro}, {cliente.cidade}
+                        {client.street}, {client.number}
+                        {client.complement && `, ${client.complement}`} - {client.neighborhood}, {client.city}
                       </td>
                       <td className="py-2 px-4 border">
                         <button
-                          onClick={() => handleEditar(cliente)}
+                          onClick={() => handleEdit(client)}
                           className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 mr-2"
                         >
                           Editar
                         </button>
                         <button
-                          onClick={() => handleExcluir(cliente.id)}
+                          onClick={() => handleDelete(client.id)}
                           className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
                         >
                           Excluir
