@@ -1,6 +1,6 @@
 "use client";
-import { useState, useMemo } from "react";
-import { Header } from "@/components/header";
+import { useState, useMemo } from 'react';
+import Header from "@/components/Header";
 
 interface Cliente {
   id: number;
@@ -24,7 +24,7 @@ const clientesIniciais: Cliente[] = [
     numero: "100",
     complemento: "Apto 101",
     bairro: "Centro",
-    cidade: "São Paulo",
+    cidade: "São Paulo"
   },
   {
     id: 2,
@@ -35,7 +35,7 @@ const clientesIniciais: Cliente[] = [
     numero: "200",
     complemento: "",
     bairro: "Jardins",
-    cidade: "São Paulo",
+    cidade: "São Paulo"
   },
   {
     id: 3,
@@ -46,7 +46,7 @@ const clientesIniciais: Cliente[] = [
     numero: "300",
     complemento: "Casa",
     bairro: "Flamengo",
-    cidade: "Rio de Janeiro",
+    cidade: "Rio de Janeiro"
   },
   {
     id: 4,
@@ -57,7 +57,7 @@ const clientesIniciais: Cliente[] = [
     numero: "400",
     complemento: "Apto 402",
     bairro: "Centro",
-    cidade: "Belo Horizonte",
+    cidade: "Belo Horizonte"
   },
   {
     id: 5,
@@ -68,7 +68,7 @@ const clientesIniciais: Cliente[] = [
     numero: "500",
     complemento: "",
     bairro: "Batel",
-    cidade: "Curitiba",
+    cidade: "Curitiba"
   },
   {
     id: 6,
@@ -79,7 +79,7 @@ const clientesIniciais: Cliente[] = [
     numero: "600",
     complemento: "Sala 5",
     bairro: "Centro",
-    cidade: "Porto Alegre",
+    cidade: "Porto Alegre"
   },
   {
     id: 7,
@@ -90,7 +90,7 @@ const clientesIniciais: Cliente[] = [
     numero: "700",
     complemento: "Bloco B",
     bairro: "Meireles",
-    cidade: "Fortaleza",
+    cidade: "Fortaleza"
   },
   {
     id: 8,
@@ -101,116 +101,124 @@ const clientesIniciais: Cliente[] = [
     numero: "800",
     complemento: "Cobertura",
     bairro: "Barra",
-    cidade: "Salvador",
-  },
+    cidade: "Salvador"
+  }
 ];
 
 export default function CadastroClientes() {
   const [clientes, setClientes] = useState<Cliente[]>(clientesIniciais);
   const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
-  const [formData, setFormData] = useState<Omit<Cliente, "id">>({
-    nome: "",
-    cpf: "",
-    telefone: "",
-    rua: "",
-    numero: "",
-    complemento: "",
-    bairro: "",
-    cidade: "",
+  const [formData, setFormData] = useState<Omit<Cliente, 'id'>>({
+    nome: '',
+    cpf: '',
+    telefone: '',
+    rua: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: ''
   });
-
-  const [busca, setBusca] = useState("");
+  const [busca, setBusca] = useState('');
+  const [modoBusca, setModoBusca] = useState<'todos' | 'nome' | 'cpf' | 'telefone' | 'endereco'>('todos');
 
   const clientesFiltrados = useMemo(() => {
-    if (!busca) return clientes;
+    if (!busca.trim()) return clientes;
+    
+    const termo = busca.toLowerCase().trim();
+    const numeros = busca.replace(/\D/g, '');
 
-    const termoBusca = busca.toLowerCase().trim();
-    const numerosBusca = busca.replace(/\D/g, "");
-
-    return clientes.filter((cliente) => {
-      if (
-        numerosBusca.length > 0 &&
-        termoBusca.replace(/[.-]/g, "").match(/^\d+$/)
-      ) {
-        return cliente.cpf.includes(numerosBusca);
+    return clientes.filter(cliente => {
+      switch (modoBusca) {
+        case 'nome':
+          return cliente.nome.toLowerCase().includes(termo);
+        case 'cpf':
+          return cliente.cpf.includes(numeros);
+        case 'telefone':
+          return cliente.telefone.includes(numeros);
+        case 'endereco':
+          return (
+            cliente.rua.toLowerCase().includes(termo) ||
+            cliente.bairro.toLowerCase().includes(termo) ||
+            cliente.cidade.toLowerCase().includes(termo)
+          );
+        default:
+          return (
+            cliente.nome.toLowerCase().includes(termo) ||
+            cliente.cpf.includes(numeros) ||
+            cliente.telefone.includes(numeros) ||
+            cliente.rua.toLowerCase().includes(termo) ||
+            cliente.bairro.toLowerCase().includes(termo) ||
+            cliente.cidade.toLowerCase().includes(termo)
+          );
       }
-      return cliente.nome.toLowerCase().includes(termoBusca);
     });
-  }, [clientes, busca]);
+  }, [clientes, busca, modoBusca]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
-
-    const numericValue = input.replace(/\D/g, "");
-
+    const numericValue = input.replace(/\D/g, '');
     const truncatedValue = numericValue.slice(0, 11);
-
     setFormData({
       ...formData,
-      cpf: truncatedValue,
+      cpf: truncatedValue
     });
   };
-
   const formatCpfDisplay = (cpf: string) => {
-    if (!cpf) return "";
-
+    if (!cpf) return '';
     return cpf
-      .replace(/\D/g, "")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      .replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
   const formatarTelefone = (telefone: string): string => {
-    return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+    return telefone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    
     if (formData.cpf.length !== 11) {
-      alert("CPF deve conter exatamente 11 dígitos");
+      alert('CPF deve conter exatamente 11 dígitos');
       return;
     }
-
+    
     if (clienteEditando) {
-      setClientes(
-        clientes.map((cliente) =>
-          cliente.id === clienteEditando.id
-            ? {
-                ...formData,
-                id: clienteEditando.id,
-                cpf: formData.cpf,
-              }
-            : cliente
-        )
-      );
+      setClientes(clientes.map(cliente => 
+        cliente.id === clienteEditando.id ? { 
+          ...formData, 
+          id: clienteEditando.id,
+          cpf: formData.cpf,
+          telefone: formatarTelefone(formData.telefone.replace(/\D/g, ''))
+        } : cliente
+      ));
     } else {
       const novoCliente: Cliente = {
         ...formData,
         id: Date.now(),
-        telefone: formatarTelefone(formData.telefone.replace(/\D/g, "")),
+        telefone: formatarTelefone(formData.telefone.replace(/\D/g, ''))
       };
       setClientes([...clientes, novoCliente]);
     }
-
+    
     setFormData({
-      nome: "",
-      cpf: "",
-      telefone: "",
-      rua: "",
-      numero: "",
-      complemento: "",
-      bairro: "",
-      cidade: "",
+      nome: '',
+      cpf: '',
+      telefone: '',
+      rua: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: ''
     });
     setClienteEditando(null);
   };
@@ -225,30 +233,27 @@ export default function CadastroClientes() {
       numero: cliente.numero,
       complemento: cliente.complemento,
       bairro: cliente.bairro,
-      cidade: cliente.cidade,
+      cidade: cliente.cidade
     });
   };
 
   const handleExcluir = (id: number) => {
-    setClientes(clientes.filter((cliente) => cliente.id !== id));
+    if (confirm('Tem certeza que deseja excluir este cliente?')) {
+      setClientes(clientes.filter(cliente => cliente.id !== id));
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
       <div className="pt-20 px-6 max-w-7xl mx-auto font-poppins">
-        <h1 className="text-2xl font-bold text-[#B72A23] mb-6">
-          Cadastro de Clientes
-        </h1>
-
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-6 rounded shadow-md mb-8"
-        >
+        <h1 className="text-2xl font-bold text-[#B72A23] mb-6">Cadastro de Clientes</h1>
+        
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md mb-8">
           <h2 className="text-xl font-semibold mb-4">
-            {clienteEditando ? "Editar Cliente" : "Novo Cliente"}
+            {clienteEditando ? 'Editar Cliente' : 'Novo Cliente'}
           </h2>
-
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block font-semibold mb-1">Nome*</label>
@@ -261,7 +266,7 @@ export default function CadastroClientes() {
                 required
               />
             </div>
-
+            
             <div>
               <label className="block font-semibold mb-1">CPF*</label>
               <input
@@ -270,21 +275,17 @@ export default function CadastroClientes() {
                 value={formatCpfDisplay(formData.cpf)}
                 onChange={handleCpfChange}
                 className={`w-full p-2 rounded border ${
-                  formData.cpf.length > 0 && formData.cpf.length !== 11
-                    ? "border-red-500"
-                    : ""
+                  formData.cpf.length > 0 && formData.cpf.length !== 11 ? 'border-red-500' : ''
                 }`}
                 placeholder="000.000.000-00"
                 maxLength={14}
                 required
               />
               {formData.cpf.length > 0 && formData.cpf.length !== 11 && (
-                <p className="text-red-500 text-sm mt-1">
-                  CPF deve ter exatamente 11 dígitos
-                </p>
+                <p className="text-red-500 text-sm mt-1">CPF deve ter exatamente 11 dígitos</p>
               )}
             </div>
-
+            
             <div>
               <label className="block font-semibold mb-1">Telefone*</label>
               <input
@@ -297,7 +298,7 @@ export default function CadastroClientes() {
                 required
               />
             </div>
-
+            
             <div>
               <label className="block font-semibold mb-1">Rua*</label>
               <input
@@ -309,7 +310,7 @@ export default function CadastroClientes() {
                 required
               />
             </div>
-
+            
             <div>
               <label className="block font-semibold mb-1">Número*</label>
               <input
@@ -321,7 +322,7 @@ export default function CadastroClientes() {
                 required
               />
             </div>
-
+            
             <div>
               <label className="block font-semibold mb-1">Complemento</label>
               <input
@@ -332,7 +333,7 @@ export default function CadastroClientes() {
                 className="w-full p-2 rounded border"
               />
             </div>
-
+            
             <div>
               <label className="block font-semibold mb-1">Bairro*</label>
               <input
@@ -344,7 +345,7 @@ export default function CadastroClientes() {
                 required
               />
             </div>
-
+            
             <div>
               <label className="block font-semibold mb-1">Cidade*</label>
               <input
@@ -357,111 +358,123 @@ export default function CadastroClientes() {
               />
             </div>
           </div>
-
-          <button
-            type="submit"
-            className="mt-4 bg-[#B72A23] text-white py-2 px-4 rounded hover:bg-[#a0251e] transition"
-            disabled={formData.cpf.length > 0 && formData.cpf.length !== 11}
-          >
-            {clienteEditando ? "Atualizar Cliente" : "Cadastrar Cliente"}
-          </button>
-
-          {clienteEditando && (
+          
+          <div className="flex mt-4">
             <button
-              type="button"
-              onClick={() => {
-                setClienteEditando(null);
-                setFormData({
-                  nome: "",
-                  cpf: "",
-                  telefone: "",
-                  rua: "",
-                  numero: "",
-                  complemento: "",
-                  bairro: "",
-                  cidade: "",
-                });
-              }}
-              className="mt-4 ml-2 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
+              type="submit"
+              className="bg-[#B72A23] text-white py-2 px-4 rounded hover:bg-[#a0251e] transition"
+              disabled={formData.cpf.length > 0 && formData.cpf.length !== 11}
             >
-              Cancelar
+              {clienteEditando ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
             </button>
-          )}
+            
+            {clienteEditando && (
+              <button
+                type="button"
+                onClick={() => {
+                  setClienteEditando(null);
+                  setFormData({
+                    nome: '',
+                    cpf: '',
+                    telefone: '',
+                    rua: '',
+                    numero: '',
+                    complemento: '',
+                    bairro: '',
+                    cidade: ''
+                  });
+                }}
+                className="ml-2 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
         </form>
 
         <div className="bg-white p-6 rounded shadow-md mb-6">
           <h2 className="text-xl font-semibold mb-4">Buscar Clientes</h2>
-          <div className="relative">
-            <input
-              type="text"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="w-full p-2 rounded border pl-10"
-              placeholder="Busque por nome ou CPF..."
-            />
+          
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="relative flex-grow">
+              <input
+                type="text"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="w-full p-2 rounded border pl-10"
+                placeholder={`Buscar por ${modoBusca === 'todos' ? 'qualquer campo' : modoBusca}...`}
+              />
+              <svg
+                className="absolute left-3 top-3 h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            
+            <select
+              value={modoBusca}
+              onChange={(e) => setModoBusca(e.target.value as 'todos' | 'nome' | 'cpf' | 'telefone' | 'endereco')}
+              className="p-2 rounded border bg-white"
+            >
+              <option value="todos">Todos os Campos</option>
+              <option value="nome">Nome</option>
+              <option value="cpf">CPF</option>
+              <option value="telefone">Telefone</option>
+              <option value="endereco">Endereço</option>
+            </select>
           </div>
+          
           {busca && (
-            <p className="mt-2 text-sm text-gray-600">
-              {clientesFiltrados.length} cliente(s) encontrado(s)
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                {clientesFiltrados.length} cliente(s) encontrado(s)
+              </p>
+              {busca && (
+                <button
+                  onClick={() => setBusca('')}
+                  className="text-sm text-[#B72A23] hover:underline"
+                >
+                  Limpar busca
+                </button>
+              )}
+            </div>
           )}
         </div>
 
-        {busca && clientesFiltrados.length > 0 && (
-          <div className="bg-white p-6 rounded shadow-md mb-6">
-            <h2 className="text-xl font-semibold mb-4">Resultados da Busca</h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="py-2 px-4 border">Nome</th>
-                    <th className="py-2 px-4 border">CPF</th>
-                    <th className="py-2 px-4 border">Telefone</th>
-                    <th className="py-2 px-4 border">Endereço</th>
-                    <th className="py-2 px-4 border">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clientesFiltrados.map((cliente) => (
-                    <tr key={cliente.id} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border">{cliente.nome}</td>
-                      <td className="py-2 px-4 border">
-                        {formatCpfDisplay(cliente.cpf)}
-                      </td>
-                      <td className="py-2 px-4 border">{cliente.telefone}</td>
-                      <td className="py-2 px-4 border">
-                        {cliente.rua}, {cliente.numero}
-                        {cliente.complemento &&
-                          `, ${cliente.complemento}`} - {cliente.bairro},{" "}
-                        {cliente.cidade}
-                      </td>
-                      <td className="py-2 px-4 border">
-                        <button
-                          onClick={() => handleEditar(cliente)}
-                          className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 mr-2"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleExcluir(cliente.id)}
-                          className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
-                        >
-                          Excluir
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
         <div className="bg-white p-6 rounded shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Clientes Cadastrados</h2>
-
-          {clientes.length === 0 ? (
-            <p className="text-gray-500">Nenhum cliente cadastrado ainda.</p>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">
+              {busca ? 'Resultados da Busca' : 'Todos os Clientes'}
+            </h2>
+            {busca && (
+              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                Filtro: {modoBusca === 'todos' ? 'todos os campos' : modoBusca}
+              </span>
+            )}
+          </div>
+          
+          {clientesFiltrados.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-2">
+                {busca ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado ainda.'}
+              </p>
+              {busca && (
+                <button
+                  onClick={() => setBusca('')}
+                  className="text-[#B72A23] hover:underline"
+                >
+                  Ver todos os clientes
+                </button>
+              )}
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white">
@@ -475,18 +488,14 @@ export default function CadastroClientes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {clientes.map((cliente) => (
+                  {clientesFiltrados.map(cliente => (
                     <tr key={cliente.id} className="hover:bg-gray-50">
                       <td className="py-2 px-4 border">{cliente.nome}</td>
-                      <td className="py-2 px-4 border">
-                        {formatCpfDisplay(cliente.cpf)}
-                      </td>
+                      <td className="py-2 px-4 border">{formatCpfDisplay(cliente.cpf)}</td>
                       <td className="py-2 px-4 border">{cliente.telefone}</td>
                       <td className="py-2 px-4 border">
                         {cliente.rua}, {cliente.numero}
-                        {cliente.complemento &&
-                          `, ${cliente.complemento}`} - {cliente.bairro},{" "}
-                        {cliente.cidade}
+                        {cliente.complemento && `, ${cliente.complemento}`} - {cliente.bairro}, {cliente.cidade}
                       </td>
                       <td className="py-2 px-4 border">
                         <button
