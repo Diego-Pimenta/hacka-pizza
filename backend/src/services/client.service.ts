@@ -10,7 +10,7 @@ export const createClient = async (data: {
   address: {
     address: string;
     region: string;
-    postCode: string; 
+    postCode: string;
     country: string;
   };
 }) => {
@@ -37,8 +37,8 @@ export const createClient = async (data: {
     data: {
       ...clientData,
       address: {
-        create: address
-      }
+        create: address,
+      },
     },
   });
 
@@ -46,7 +46,11 @@ export const createClient = async (data: {
 };
 
 export const getAllClients = async () => {
-  const clients = await prisma.client.findMany();
+  const clients = await prisma.client.findMany({
+    include: {
+      address: true,
+    },
+  });
   return clients;
 };
 
@@ -74,7 +78,7 @@ export const updateClient = async (id: string, data: Partial<Omit<Client, 'id'>>
         phoneNumber: data.phoneNumber,
       },
     });
-    if (client) {
+    if (client && client.id != id) {
       throw new HttpError('Client already exists', 409);
     }
   }
@@ -87,7 +91,7 @@ export const updateClient = async (id: string, data: Partial<Omit<Client, 'id'>>
       },
     });
 
-    if (client) {
+    if (client && client.id != id) {
       throw new HttpError('Client already exists', 409);
     }
   }

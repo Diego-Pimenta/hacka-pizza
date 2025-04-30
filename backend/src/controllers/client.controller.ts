@@ -8,7 +8,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
 
   try {
     const client = await ClientService.createClient(data);
-    res.status(201).json({ success: true, data: client });
+    res.status(201).json({ success: true, client: client });
   } catch (error) {
     next(error);
   }
@@ -17,7 +17,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
 export const getClients = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const clients = await ClientService.getAllClients();
-    res.status(200).json({ success: true, data: clients });
+    res.status(200).json({ success: true, clients: clients });
   } catch (error) {
     next(error);
   }
@@ -27,7 +27,7 @@ export const getClientById = async (req: Request, res: Response, next: NextFunct
   try {
     const { id } = req.params;
     const client = await ClientService.getClientById(id);
-    res.status(200).json({ success: true, data: client });
+    res.status(200).json({ success: true, client: client });
   } catch (error) {
     next(error);
   }
@@ -37,7 +37,7 @@ export const getClientByPhoneNumber = async (req: Request, res: Response, next: 
   try {
     const { phone } = req.params;
     const client = await ClientService.getClientByPhoneNumber(phone);
-    res.status(200).json({ success: true, data: client });
+    res.status(200).json({ success: true, client: client });
   } catch (error) {
     next(error);
   }
@@ -49,7 +49,7 @@ export const updateClient = async (req: Request, res: Response, next: NextFuncti
   try {
     const { id } = req.params;
     const client = await ClientService.updateClient(id, data);
-    res.status(200).json({ success: true, data: client });
+    res.status(200).json({ success: true, client: client });
   } catch (error) {
     next(error);
   }
