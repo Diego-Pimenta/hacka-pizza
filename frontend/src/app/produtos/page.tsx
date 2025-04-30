@@ -22,15 +22,13 @@ export default async function Products() {
       <div className="bg-gray-100 pb-20">
         <Header />
         <div className="pt-20 px-5">
+          <h1 className="text-2xl font-bold text-[#B72A23] mb-6">Produtos</h1>
+
           <Link href="/produtos/editor">
             <span className="text-lg font-bold bg-[#B72A23] text-white rounded-lg px-5 py-2 mb-6">
               Novo Produto
             </span>
           </Link>
-
-          <h1 className="text-2xl font-extrabold underline text-[#B72A23] my-8">
-            Produtos
-          </h1>
 
           <ProductsList />
         </div>

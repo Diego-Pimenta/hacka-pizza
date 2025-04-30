@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Criar Produto | Hacka-Pizza",
 };
 
-export default async function Products() {
+export default async function NewProduct() {
   const authToken = await hasAuthToken();
 
   if (!authToken) {
