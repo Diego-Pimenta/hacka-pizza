@@ -17,7 +17,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const doesPasswordMatch = await comparePasswords(password, user.password);
     if (doesPasswordMatch) {
       const token = generateToken({ id: user.id }, '1h');
-      res.status(200).json({ success: true, data: token });
+      res.status(200).json({ success: true, data: { token: token } });
     } else {
       res.status(401).json({ success: false, error: { message: 'Invalid credentials' } });
     }

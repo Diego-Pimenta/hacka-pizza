@@ -12,7 +12,7 @@ export const protectAuth = async (req: Request, res: Response, next: NextFunctio
 
     const decoded = verifyToken(token);
 
-    req.user.id = decoded.id;
+    req.user.id = decoded.id; // TODO: line throwing error
     next();
   } catch (error) {
     res.status(401).json({ message: 'Unhathorized' });
