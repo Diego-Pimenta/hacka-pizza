@@ -58,6 +58,14 @@ export const getClientById = async (id: string) => {
   return user;
 };
 
+export const getClientByPhoneNumber = async (phoneNumber: string) => {
+  const user = await prisma.client.findUnique({
+    where: { phoneNumber },
+  });
+
+  return user;
+};
+
 export const updateClient = async (id: string, data: Partial<Omit<Client, 'id'>>) => {
   if (data.phoneNumber) {
     const client = await prisma.client.findUnique({
