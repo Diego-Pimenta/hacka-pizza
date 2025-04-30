@@ -4,22 +4,21 @@ import { Main } from "@/components/main";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const authToken = await hasAuthToken();
+  // const authToken = await hasAuthToken();
 
-  if (!authToken) {
-    redirect("/login");
-  }
+  // if (!authToken) {
+  //   redirect("/login");
+  // }
 
   const options = [
-    { label: "Pedidos", path: "/pedidos" },
-    { label: "Ordens", path: "/ordens" },
+    { label: "Criar Pedidos", path: "/pedidos" },
+    { label: "Acompanhar Pedidos", path: "/acompanhar-pedidos" },
     { label: "Produtos", path: "/produtos" },
     { label: "Clientes", path: "/clientes" },
-    { label: "Usuários", path: "/usuarios" },
   ];
 
   return (
-    <Main>
+    // <Main>
       <div className="min-h-screen bg-gray-100">
         <Header />
 
@@ -41,6 +40,6 @@ export default async function Home() {
           </div>
         </div>
       </div>
-    </Main>
+    // </Main>
   );
 }

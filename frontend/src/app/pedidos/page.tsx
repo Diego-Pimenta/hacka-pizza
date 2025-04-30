@@ -5,17 +5,13 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Main } from "@/components/main";
+import { createOrder } from "@/http/requests/orders";
+import { fetchClients } from "@/http/requests/clients";
+import { ApiError } from "@/http/errors/api-error";
+import { Toast } from "@/components/toast";
+import { toast } from "sonner";
 
-const clients = {
-  "11999999999": {
-    name: "João da Silva",
-    address: "Rua das Flores, 123",
-  },
-  "11888888888": {
-    name: "Maria Oliveira",
-    address: "Avenida Central, 456",
-  },
-};
+// Client data will be fetched from API
 
 const pizzaFlavors = [
   {
@@ -87,6 +83,14 @@ interface AvailableDrink {
   sizes: Record<string, number>;
 }
 
+type CartItem = {
+  type: 'pizza' | 'drink';
+  name: string;
+  size: string;
+  quantity: number;
+  price: number;
+};
+
 const orderSchema = z
   .object({
     phone: z
@@ -124,6 +128,11 @@ export default function Orders() {
   const [selectedPizza, setSelectedPizza] = useState<PizzaFlavor>();
   const [selectedDrink, setSelectedDrink] = useState<AvailableDrink>();
   const [total, setTotal] = useState(0);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [clientsData, setClientsData] = useState<Record<string, { name: string, address: string }>>({});
 
   const {
     register,
@@ -132,10 +141,13 @@ export default function Orders() {
     setValue,
     resetField,
     formState: { errors },
+    reset,
   } = useForm<IOrder>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
       wantsDrink: false,
+      pizzaQuantity: 1,
+      drinkQuantity: 1,
     },
   });
 
@@ -151,19 +163,46 @@ export default function Orders() {
 
   useEffect(() => {
     const isSelectedPizza = pizzaFlavors.find((p) => p.flavor === pizzaFlavor);
-
     setSelectedPizza(isSelectedPizza);
 
     const isSelectedDrink = availableDrinks.find((b) => b.drink === drinkName);
-
     setSelectedDrink(isSelectedDrink);
   }, [drinkName, pizzaFlavor]);
 
+  // Load clients data when component mounts
+  useEffect(() => {
+    const loadClients = async () => {
+      try {
+        setIsLoading(true);
+        const { clients } = await fetchClients();
+        
+        // Create a lookup object by phone number
+        const clientsLookup: Record<string, { name: string, address: string }> = {};
+        clients.forEach(client => {
+          // Use phoneNumber as key and store name and address
+          clientsLookup[client.phoneNumber] = {
+            name: client.name,
+            address: client.address[0]?.address || "", // Use first address if available
+          };
+        });
+        
+        setClientsData(clientsLookup);
+      } catch (error) {
+        console.error("Failed to load clients:", error);
+        setError("Falha ao carregar clientes");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadClients();
+  }, []);
+
+  // Look up client by phone number
   useEffect(() => {
     if (phone) {
       const cleanPhone = phone.replace(/\D/g, "");
-
-      const client = clients[cleanPhone];
+      const client = clientsData[cleanPhone];
 
       if (client) {
         setValue("name", client.name);
@@ -173,51 +212,147 @@ export default function Orders() {
         resetField("address");
       }
     }
-  }, [phone, setValue]);
+  }, [phone, clientsData, setValue, resetField]);
+
+  const addPizzaToCart = () => {
+    if (!selectedPizza || !pizzaSize || !pizzaQuantity) return;
+
+    const newItem: CartItem = {
+      type: 'pizza',
+      name: selectedPizza.flavor,
+      size: pizzaSize,
+      quantity: pizzaQuantity || 1,
+      price: selectedPizza.sizes[pizzaSize] * (pizzaQuantity || 1),
+    };
+
+    setCart([...cart, newItem]);
+    resetField("pizzaFlavor");
+    resetField("pizzaSize");
+    setSelectedPizza(undefined);
+  };
+
+  const addDrinkToCart = () => {
+    if (!selectedDrink || !drinkSize || !drinkQuantity) return;
+
+    const newItem: CartItem = {
+      type: 'drink',
+      name: selectedDrink.drink,
+      size: drinkSize,
+      quantity: drinkQuantity || 1,
+      price: selectedDrink.sizes[drinkSize] * (drinkQuantity || 1),
+    };
+
+    setCart([...cart, newItem]);
+    resetField("drinkName");
+    resetField("drinkSize");
+    setSelectedDrink(undefined);
+    setValue("wantsDrink", false);
+  };
+
+  const removeFromCart = (index: number) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
+  };
 
   useEffect(() => {
-    let pizzaTotal = 0;
+    const newTotal = cart.reduce((sum, item) => sum + item.price, 0);
+    setTotal(newTotal);
+  }, [cart]);
 
-    const selectedPizza = pizzaFlavors.find((p) => p.flavor === pizzaFlavor);
-
-    if (selectedPizza && pizzaSize) {
-      pizzaTotal = selectedPizza.sizes[pizzaSize] * pizzaQuantity;
+  const onSubmit = async (data: IOrder) => {
+    if (cart.length === 0) {
+      setError("Adicione pelo menos um item ao pedido!");
+      return;
     }
 
-    let drinkTotal = 0;
-
-    if (wantsDrink) {
-      const selectedDrink = availableDrinks.find((d) => d.drink === drinkName);
-      if (selectedDrink && drinkSize) {
-        drinkTotal = selectedDrink.sizes[drinkSize] * (drinkQuantity || 1);
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Create order using the API
+      await createOrder(
+        data.name,
+        data.phone,
+        data.address,
+        cart,
+        total,
+        data.paymentMethod,
+        data.status
+      );
+      
+      setSuccess("Pedido realizado com sucesso!");
+      setCart([]);
+      setTotal(0);
+      reset();
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError("Falha ao criar pedido. Tente novamente.");
       }
+    } finally {
+      setIsLoading(false);
     }
-
-    setTotal(pizzaTotal + drinkTotal);
-  }, [
-    pizzaFlavor,
-    pizzaSize,
-    pizzaQuantity,
-    wantsDrink,
-    drinkName,
-    drinkSize,
-    drinkQuantity,
-  ]);
-
-  const onSubmit = (data: IOrder) => {
-    alert(
-      `Pedido de ${data.pizzaFlavor}${
-        data.wantsDrink ? " + " + data.drinkName : ""
-      } realizado com sucesso!`
-    );
   };
+
+  // Custom submit handler that bypasses pizza validation if cart has items
+  const customSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // If cart has items, we can bypass the pizza flavor validation
+    if (cart.length > 0) {
+      // Validate only the required fields regardless of pizza selection
+      if (!phone || !watch("name") || !watch("address") || !paymentMethod) {
+        setError("Preencha os campos obrigatórios: telefone, nome, endereço e forma de pagamento");
+        return;
+      }
+      
+      onSubmit({
+        phone,
+        name: watch("name"),
+        address: watch("address"),
+        pizzaFlavor: pizzaFlavor || "",
+        pizzaSize: pizzaSize || "",
+        pizzaQuantity: pizzaQuantity || 1,
+        wantsDrink: wantsDrink || false,
+        drinkName: drinkName || undefined,
+        drinkSize: drinkSize || undefined,
+        drinkQuantity: drinkQuantity || undefined,
+        paymentMethod: paymentMethod,
+        status: watch("status") || "pendente",
+      });
+    } else {
+      // If no items in cart, use the regular form validation
+      handleSubmit(onSubmit)(e);
+    }
+  };
+
+  // Show toast notifications when error or success state changes
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+    if (success) {
+      toast.success(success);
+    }
+  }, [error, success]);
 
   return (
     <Main>
+      <Toast />
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-md shadow-lg">
+            <p className="text-center">Processando...</p>
+          </div>
+        </div>
+      )}
       <div className="min-h-screen bg-gray-100 pb-20">
         <Header />
         <div className="pt-20 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 font-poppins">
-          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <form className="space-y-4" onSubmit={customSubmit}>
             <h1 className="text-2xl font-bold text-[#B72A23] mb-6">
               Novo Pedido
             </h1>
@@ -283,7 +418,7 @@ export default function Orders() {
                 <input
                   type="number"
                   min={1}
-                  {...register("pizzaQuantity")}
+                  {...register("pizzaQuantity", { valueAsNumber: true })}
                   className="w-full p-2 rounded border"
                 />
               </div>
@@ -300,7 +435,7 @@ export default function Orders() {
                     <option value="">Selecione</option>
                     {Object.entries(selectedPizza.sizes).map(
                       ([size, price]) => (
-                        <option key={size} value={price}>
+                        <option key={size} value={size}>
                           {size.charAt(0).toUpperCase() + size.slice(1)} - R${" "}
                           {price.toFixed(2)}
                         </option>
@@ -318,6 +453,14 @@ export default function Orders() {
                   </p>
                 )}
               </div>
+
+              <button
+                type="button"
+                onClick={addPizzaToCart}
+                className="mt-3 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+              >
+                Adicionar Pizza
+              </button>
             </div>
 
             <div className="border-t pt-4">
@@ -402,10 +545,18 @@ export default function Orders() {
                     <input
                       type="number"
                       min={1}
-                      {...register("drinkQuantity")}
+                      {...register("drinkQuantity", { valueAsNumber: true })}
                       className="w-full p-2 rounded border"
                     />
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={addDrinkToCart}
+                    className="mt-3 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                  >
+                    Adicionar Bebida
+                  </button>
                 </div>
               )}
             </div>
@@ -458,40 +609,42 @@ export default function Orders() {
           <div className="bg-white p-6 rounded shadow-md">
             <h2 className="text-xl font-bold mb-4">Resumo do Pedido</h2>
 
-            {selectedPizza && pizzaSize && (
-              <p>
-                <strong>Pizza:</strong> {pizzaQuantity}x {selectedPizza.flavor}{" "}
-                ({pizzaSize.charAt(0).toUpperCase() + pizzaSize.slice(1)}) - R${" "}
-                {(selectedPizza.sizes[pizzaSize] * pizzaQuantity).toFixed(2)}
-              </p>
+            {cart.length === 0 ? (
+              <p className="text-gray-500">Nenhum item adicionado</p>
+            ) : (
+              <div>
+                {cart.map((item, index) => (
+                  <div key={index} className="mb-3 pb-3 border-b">
+                    <div className="flex justify-between">
+                      <p>
+                        <strong>{item.type === 'pizza' ? 'Pizza' : 'Bebida'}:</strong> {item.quantity}x {item.name} ({item.size})
+                      </p>
+                      <p>R$ {item.price.toFixed(2)}</p>
+                    </div>
+                    <button
+                      onClick={() => removeFromCart(index)}
+                      className="text-red-500 text-sm mt-1"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ))}
+
+                <hr className="my-4" />
+
+                {paymentMethod && (
+                  <p className="mt-2">
+                    <strong>Pagamento:</strong>{" "}
+                    {paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1)}
+                  </p>
+                )}
+                <hr className="my-4" />
+                <p className="text-lg font-bold">
+                  Total:{" "}
+                  <span className="text-green-700">R$ {total.toFixed(2)}</span>
+                </p>
+              </div>
             )}
-
-            {wantsDrink && selectedDrink && drinkSize && (
-              <p className="mt-2">
-                <strong>Bebida:</strong> {drinkQuantity}x {selectedDrink.drink}{" "}
-                ({drinkSize}) - R${" "}
-                {(selectedDrink.sizes[drinkSize] * drinkQuantity).toFixed(2)}
-              </p>
-            )}
-
-            <hr className="my-4" />
-
-            {paymentMethod && (
-              <p className="mt-2">
-                <strong>Pagamento:</strong>{" "}
-                {paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1)}
-              </p>
-            )}
-            <hr className="my-4" />
-            <p className="text-lg font-bold">
-              Total:{" "}
-              <span className="text-green-700">R$ {total.toFixed(2)}</span>
-            </p>
-
-            <p className="text-lg font-bold">
-              Total:{" "}
-              <span className="text-green-700">R$ {total.toFixed(2)}</span>
-            </p>
           </div>
         </div>
       </div>
