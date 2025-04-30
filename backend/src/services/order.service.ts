@@ -33,33 +33,8 @@ export const createOrder = async (data: {
     throw new Error('Address does not belong to this client');
   }
 
-  const orderItemsWithSubTotals: Array<{
-    productId: string;
-    quantity: number;
-    subTotal: number;
-  }> = [];
-
-  let calculatedTotal = 0;
-
-  for (const item of data.orderItems) {
-    const product = await prisma.product.findUnique({
-      where: { id: item.productId },
-    });
-
-    if (!product) {
-      throw new Error(`Product with id ${item.productId} not found`);
-    }
-
-    const subTotal = product.price * item.quantity;
-    orderItemsWithSubTotals.push({
-      productId: item.productId,
-      quantity: item.quantity,
-      subTotal,
-    });
-
-    calculatedTotal += subTotal;
-  }
-
+  //inicia uma transação no banco, criando o registro na tabela order e orderItem
+  //os subTotais são calculados no orderItem.service
   const order = await prisma.$transaction(async (tx) => {
     const newOrder = await tx.order.create({
       data: {
@@ -67,7 +42,7 @@ export const createOrder = async (data: {
         addressId: data.addressId,
         paymentMethod: data.paymentMethod as any,
         status: data.status as any || 'PENDING',
-        total: calculatedTotal,
+        total: 0, 
       },
       include: {
         client: true,
@@ -75,14 +50,23 @@ export const createOrder = async (data: {
       },
     });
 
-    for (const item of orderItemsWithSubTotals) {
-      await OrderItemService.createOrderItem({
+    let calculatedTotal = 0;
+
+    for (const item of data.orderItems) {
+      const createdItem = await OrderItemService.createOrderItem({
         orderId: newOrder.id,
         productId: item.productId,
         quantity: item.quantity,
-        subTotal: item.subTotal,
+        subTotal: 0, 
       });
+
+      calculatedTotal += createdItem.subTotal;
     }
+
+    await tx.order.update({
+      where: { id: newOrder.id },
+      data: { total: calculatedTotal },
+    });
 
     return await tx.order.findUnique({
       where: { id: newOrder.id },
