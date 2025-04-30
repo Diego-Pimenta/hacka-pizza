@@ -1,9 +1,10 @@
 import { prisma } from '../utils/prisma';
-import { Address, Prisma } from '../../generated/prisma';
+import { Prisma } from '../../generated/prisma';
+import { HttpError } from '../utils/http.error';
 
 export const createAddress = async (clientId: string, data: Prisma.AddressCreateInput) => {
   const client = await prisma.client.findUnique({ where: { id: clientId } });
-  if (!client) throw new Error('Client not found');
+  if (!client) throw new HttpError('Client not found', 404);
 
   const address = await prisma.address.create({
     data: {

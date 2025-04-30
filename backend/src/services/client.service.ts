@@ -1,5 +1,6 @@
 import { prisma } from '../utils/prisma';
-import { Client, Prisma } from '../../generated/prisma';
+import { Client } from '../../generated/prisma';
+import { HttpError } from '../utils/http.error';
 
 export const createClient = async (data: {
   name: string;
@@ -27,7 +28,7 @@ export const createClient = async (data: {
   ]);
 
   if (client[0] || client[1]) {
-    throw new Error('Client already exists');
+    throw new HttpError('Client already exists', 409);
   }
 
   const { address, ...clientData } = data;
@@ -66,7 +67,7 @@ export const updateClient = async (id: string, data: Partial<Omit<Client, 'id'>>
       },
     });
     if (client) {
-      throw new Error('Client already exists');
+      throw new HttpError('Client already exists', 409);
     }
   }
 
@@ -79,7 +80,7 @@ export const updateClient = async (id: string, data: Partial<Omit<Client, 'id'>>
     });
 
     if (client) {
-      throw new Error('Client already exists');
+      throw new HttpError('Client already exists', 409);
     }
   }
 
