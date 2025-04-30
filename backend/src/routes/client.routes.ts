@@ -10,7 +10,7 @@ router.get('/phone/:phone', ClientController.getClientByPhoneNumber);
 router.get('/:id', ClientController.checkExistingClient, ClientController.getClientById);
 router.put(
   '/:id',
-  ClientController.validateClientData,
+  ClientController.validateClientDataUpdate,
   ClientController.checkExistingClient,
   ClientController.updateClient
 );

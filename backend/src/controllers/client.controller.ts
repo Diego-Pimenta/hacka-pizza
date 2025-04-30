@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as ClientService from '../services/client.service';
 import { clientSchema } from '../utils/zod';
+import { clientUpdateSchema } from '../utils/zod';
 
 export const createClient = async (req: Request, res: Response, next: NextFunction) => {
   const data = clientSchema.parse(req.body);
@@ -43,7 +44,7 @@ export const getClientByPhoneNumber = async (req: Request, res: Response, next: 
 };
 
 export const updateClient = async (req: Request, res: Response, next: NextFunction) => {
-  const data = clientSchema.parse(req.body);
+  const data = clientUpdateSchema.parse(req.body);
 
   try {
     const { id } = req.params;
@@ -82,6 +83,16 @@ export const validateClientData = (req: Request, res: Response, next: NextFuncti
   try {
     const client = req.body;
     clientSchema.parse(client);
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const validateClientDataUpdate = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const client = req.body;
+    clientUpdateSchema.parse(client);
     next();
   } catch (error) {
     next(error);
