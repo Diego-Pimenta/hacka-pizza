@@ -5,8 +5,6 @@ export const protectAuth = async (req: Request, res: Response, next: NextFunctio
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
 
-    console.log('Token:', token);
-
     if (!token) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
@@ -20,7 +18,6 @@ export const protectAuth = async (req: Request, res: Response, next: NextFunctio
 
     next();
   } catch (error) {
-    console.log(error);
     res.status(401).json({ message: 'Unauthorized' });
   }
 };

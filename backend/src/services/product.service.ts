@@ -28,19 +28,6 @@ export const getProductById = async (id: string) => {
 };
 
 export const updateProduct = async (id: string, data: Partial<Omit<Product, 'id'>>) => {
-  if (data.name && data.size) {
-    const existingProduct = await prisma.product.findFirst({
-      where: {
-        id,
-        name: data.name,
-      },
-    });
-
-    if (existingProduct) {
-      throw new Error('Another product with this name already exists');
-    }
-  }
-
   return await prisma.product.update({
     where: { id },
     data,

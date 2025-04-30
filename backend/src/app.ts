@@ -7,6 +7,7 @@ import { errorHandler } from './middlewares/error.handler';
 import authRoutes from './routes/auth.routes';
 import clientRoutes from './routes/client.routes';
 import orderRoutes from './routes/order.routes';
+import productRoutes from './routes/product.routes';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/clients', protectAuth, clientRoutes);
 app.use('/order', protectAuth, orderRoutes);
+app.use('/products', protectAuth, productRoutes);
 
 app.use(errorHandler);
 

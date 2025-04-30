@@ -6,7 +6,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
   try {
     const data = productSchema.parse(req.body);
     const product = await ProductService.createProduct(data);
-    res.status(201).json({ success: true, data: product });
+    res.status(201).json({ success: true, product: product });
   } catch (error) {
     next(error);
   }
@@ -15,7 +15,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const products = await ProductService.getAllProducts();
-    res.status(200).json({ success: true, data: products });
+    res.status(200).json({ success: true, products: products });
   } catch (error) {
     next(error);
   }
@@ -25,7 +25,7 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
   try {
     const { id } = req.params;
     const product = await ProductService.getProductById(id);
-    res.status(200).json({ success: true, data: product });
+    res.status(200).json({ success: true, product: product });
   } catch (error) {
     next(error);
   }
@@ -36,7 +36,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
     const { id } = req.params;
     const data = productSchema.parse(req.body);
     const product = await ProductService.updateProduct(id, data);
-    res.status(200).json({ success: true, data: product });
+    res.status(200).json({ success: true, product: product });
   } catch (error) {
     next(error);
   }
