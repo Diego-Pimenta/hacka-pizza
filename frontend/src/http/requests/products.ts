@@ -42,6 +42,26 @@ export async function createProduct(
   }
 }
 
+export async function searchProductsByName(name: string) {
+  try {
+    const response = await api.get<{ products: IProduct[] }>(
+      `/products/name/${name}`
+    );
+
+    return {
+      products: response.data.products,
+    };
+  } catch (error) {
+    const { message } = apiMessageErrorHandler(
+      error instanceof AxiosError
+        ? error.response?.data.error
+        : "Internal server error"
+    );
+
+    throw new ApiError(message);
+  }
+}
+
 export async function fetchProducts() {
   try {
     const response = await api.get<{ products: IProduct[] }>("/products");

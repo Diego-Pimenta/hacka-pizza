@@ -47,6 +47,26 @@ export async function createClient(
   }
 }
 
+export async function searchClientsByPhoneNumber(phoneNumber: string) {
+  try {
+    const response = await api.get<{ clients: IClient[] }>(
+      `/clients/phone/${phoneNumber}`
+    );
+
+    return {
+      clients: response.data.clients,
+    };
+  } catch (error) {
+    const { message } = apiMessageErrorHandler(
+      error instanceof AxiosError
+        ? error.response?.data.error
+        : "Internal server error"
+    );
+
+    throw new ApiError(message);
+  }
+}
+
 export async function fetchClients() {
   try {
     const response = await api.get<{ clients: IClient[] }>("/clients");
