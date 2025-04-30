@@ -11,14 +11,13 @@ export interface IUser {
 
 export async function loginUser(email: string, password: string) {
   try {
-    // const response = await api.post<{ token: string }>("/auth/login", {
-    //   email,
-    //   password,
-    // });
+    const response = await api.post<{ token: string }>("/auth/login", {
+      email,
+      password,
+    });
 
     return {
-      // token: response.data.token,
-      token: 'tokendsad1as1das',
+      token: response.data.token,
     };
   } catch (error) {
     const { message, paths } = apiMessageErrorHandler(
@@ -32,14 +31,9 @@ export async function loginUser(email: string, password: string) {
 }
 
 export async function getUser() {
-  // const response = await api.get<{ user: IUser }>("/user");
+  const response = await api.get<{ user: IUser }>("/auth/user");
 
   return {
-    // user: response.data.user,
-    user: {
-      id: 'idaldlsalçdsla',
-      name: "John Doe",
-      email: "johndoe@gmail.com",
-    },
+    user: response.data.user,
   };
 }

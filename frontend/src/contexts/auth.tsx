@@ -49,14 +49,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         const { user: loadedUser } = await getUser();
 
-        console.log(loadedUser)
-
         setUser(loadedUser);
       }
     } catch (error) {
       if (error instanceof ApiError) {
         toast.error(error.message);
       }
+
       await removeUserAndToken();
     } finally {
       setIsLoadingUserData(false);
