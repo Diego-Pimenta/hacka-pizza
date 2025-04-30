@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/hooks/use-auth';
-import { ReactNode } from 'react';
-import { Loading } from './ui/loading';
+import { useAuth } from "@/hooks/use-auth";
+import { ReactNode } from "react";
+import { Loading } from "./ui/loading";
 
 export const Main = ({ children }: { children: ReactNode }) => {
   const { isLoadingUserData } = useAuth();

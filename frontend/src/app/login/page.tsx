@@ -5,7 +5,7 @@ import { LoginForm } from "./login-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Entrar | HackaPizza',
+  title: "Entrar | HackaPizza",
 };
 
 export default async function Login() {

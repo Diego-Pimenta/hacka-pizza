@@ -1,5 +1,5 @@
-import { deleteAuthToken, getAuthToken } from '@/actions/headers';
-import axios, { AxiosError } from 'axios';
+import { deleteAuthToken, getAuthToken } from "@/actions/headers";
+import axios, { AxiosError } from "axios";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_URL_API,
@@ -15,19 +15,6 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-export { api };
-
-
-api.interceptors.request.use(async (config) => {
-  const token = await getAuthToken();
-
-  if (token) {
-    config.headers.Authorization = token;
-  }
-
-  return config;
-});
-
 api.interceptors.response.use(
   async (response) => {
     return response;
@@ -36,14 +23,14 @@ api.interceptors.response.use(
     if (error instanceof AxiosError) {
       const message = error.response?.data.error;
 
-      if (message === 'Unauthorized') {
-        api.defaults.headers.Authorization = '';
+      if (message === "Unauthorized") {
         await deleteAuthToken();
-
-        window.location.href = '/login';
+        window.location.href = "/login";
       }
     }
 
     return Promise.reject(error);
-  },
+  }
 );
+
+export { api };

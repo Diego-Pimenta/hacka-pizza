@@ -31,9 +31,19 @@ export async function loginUser(email: string, password: string) {
 }
 
 export async function getUser() {
-  const response = await api.get<{ user: IUser }>("/auth/user");
+  try {
+    const response = await api.get<{ user: IUser }>("/auth/user");
 
-  return {
-    user: response.data.user,
-  };
+    return {
+      user: response.data.user,
+    };
+  } catch (error) {
+    const { message } = apiMessageErrorHandler(
+      error instanceof AxiosError
+        ? error.response?.data.error
+        : "Internal server error"
+    );
+
+    throw new ApiError(message);
+  }
 }

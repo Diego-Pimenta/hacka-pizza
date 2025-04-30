@@ -7,16 +7,13 @@ export default async function Home() {
   const authToken = await hasAuthToken();
 
   if (!authToken) {
-    redirect('/login');
+    redirect("/login");
   }
-
 
   const options = [
     { label: "Pedidos", path: "/pedidos" },
-    { label: "Bebidas", path: "/bebidas" },
+    { label: "Produtos", path: "/produtos" },
     { label: "Cadastro de Clientes", path: "/cadastro-cliente" },
-    { label: "Sabores de Pizza", path: "/sabores" },
-    { label: "Tamanhos de Pizza", path: "/tamanhos" },
     { label: "Usuários", path: "/usuarios" },
   ];
 

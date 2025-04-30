@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
 import { toast } from "sonner";
 
 export function Header({ showLogoutButton = true }) {
@@ -9,16 +10,19 @@ export function Header({ showLogoutButton = true }) {
   const logout = async () => {
     await removeUserAndToken();
 
-    toast.info('Você saiu da sua conta!');
+    toast.info("Você saiu da sua conta!");
   };
 
   return (
     <header className="fixed top-0 left-0 w-full bg-[#B72A23] z-50 shadow-xl h-12 px-8 flex items-center justify-between">
       <div className="w-24"></div>
 
-      <h2 className="font-oleo text-white text-2xl absolute left-1/2 transform -translate-x-1/2">
+      <Link
+        href="/"
+        className="font-oleo text-white text-2xl absolute left-1/2 transform -translate-x-1/2"
+      >
         Hacka Pizza
-      </h2>
+      </Link>
 
       <div className="w-24">
         {showLogoutButton && (
