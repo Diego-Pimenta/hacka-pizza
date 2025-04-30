@@ -5,17 +5,13 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Main } from "@/components/main";
+import { createOrder } from "@/http/requests/orders";
+import { fetchClients } from "@/http/requests/clients";
+import { ApiError } from "@/http/errors/api-error";
+import { Toast } from "@/components/toast";
+import { toast } from "sonner";
 
-const clients = {
-  "11999999999": {
-    name: "João da Silva",
-    address: "Rua das Flores, 123",
-  },
-  "11888888888": {
-    name: "Maria Oliveira",
-    address: "Avenida Central, 456",
-  },
-};
+// Client data will be fetched from API
 
 const pizzaFlavors = [
   {
@@ -133,6 +129,10 @@ export default function Orders() {
   const [selectedDrink, setSelectedDrink] = useState<AvailableDrink>();
   const [total, setTotal] = useState(0);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [clientsData, setClientsData] = useState<Record<string, { name: string, address: string }>>({});
 
   const {
     register,
@@ -169,10 +169,40 @@ export default function Orders() {
     setSelectedDrink(isSelectedDrink);
   }, [drinkName, pizzaFlavor]);
 
+  // Load clients data when component mounts
+  useEffect(() => {
+    const loadClients = async () => {
+      try {
+        setIsLoading(true);
+        const { clients } = await fetchClients();
+        
+        // Create a lookup object by phone number
+        const clientsLookup: Record<string, { name: string, address: string }> = {};
+        clients.forEach(client => {
+          // Use phoneNumber as key and store name and address
+          clientsLookup[client.phoneNumber] = {
+            name: client.name,
+            address: client.address[0]?.address || "", // Use first address if available
+          };
+        });
+        
+        setClientsData(clientsLookup);
+      } catch (error) {
+        console.error("Failed to load clients:", error);
+        setError("Falha ao carregar clientes");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadClients();
+  }, []);
+
+  // Look up client by phone number
   useEffect(() => {
     if (phone) {
       const cleanPhone = phone.replace(/\D/g, "");
-      const client = clients[cleanPhone];
+      const client = clientsData[cleanPhone];
 
       if (client) {
         setValue("name", client.name);
@@ -182,7 +212,7 @@ export default function Orders() {
         resetField("address");
       }
     }
-  }, [phone, setValue, resetField]);
+  }, [phone, clientsData, setValue, resetField]);
 
   const addPizzaToCart = () => {
     if (!selectedPizza || !pizzaSize || !pizzaQuantity) return;
@@ -230,23 +260,41 @@ export default function Orders() {
     setTotal(newTotal);
   }, [cart]);
 
-  const onSubmit = (data: IOrder) => {
+  const onSubmit = async (data: IOrder) => {
     if (cart.length === 0) {
-      alert("Adicione pelo menos um item ao pedido!");
+      setError("Adicione pelo menos um item ao pedido!");
       return;
     }
 
-    const orderDetails = cart.map(item => 
-      `${item.quantity}x ${item.name} (${item.size})`
-    ).join(", ");
-
-    alert(
-      `Pedido realizado com sucesso!\n\nItens: ${orderDetails}\nTotal: R$ ${total.toFixed(2)}`
-    );
-    
-    setCart([]);
-    setTotal(0);
-    reset();
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Create order using the API
+      await createOrder(
+        data.name,
+        data.phone,
+        data.address,
+        cart,
+        total,
+        data.paymentMethod,
+        data.status
+      );
+      
+      setSuccess("Pedido realizado com sucesso!");
+      setCart([]);
+      setTotal(0);
+      reset();
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError("Falha ao criar pedido. Tente novamente.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Custom submit handler that bypasses pizza validation if cart has items
@@ -257,7 +305,7 @@ export default function Orders() {
     if (cart.length > 0) {
       // Validate only the required fields regardless of pizza selection
       if (!phone || !watch("name") || !watch("address") || !paymentMethod) {
-        alert("Preencha os campos obrigatórios: telefone, nome, endereço e forma de pagamento");
+        setError("Preencha os campos obrigatórios: telefone, nome, endereço e forma de pagamento");
         return;
       }
       
@@ -281,8 +329,26 @@ export default function Orders() {
     }
   };
 
+  // Show toast notifications when error or success state changes
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+    if (success) {
+      toast.success(success);
+    }
+  }, [error, success]);
+
   return (
     <Main>
+      <Toast />
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-md shadow-lg">
+            <p className="text-center">Processando...</p>
+          </div>
+        </div>
+      )}
       <div className="min-h-screen bg-gray-100 pb-20">
         <Header />
         <div className="pt-20 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 font-poppins">

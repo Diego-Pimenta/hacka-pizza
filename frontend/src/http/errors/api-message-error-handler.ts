@@ -32,6 +32,17 @@ export const apiMessageErrorHandler = (error?: string) => {
       return {
         message: "Sessão inválida, você foi desconectado",
       };
+      
+    case "Order not found":
+      return {
+        message: "Pedido não encontrado",
+      };
+
+    case "Invalid order status":
+      return {
+        paths: ["status"],
+        message: "Status de pedido inválido",
+      };
 
     default:
       return {
