@@ -4,6 +4,11 @@ import * as OrderController from '../controllers/order.controller';
 
 const router = Router();
 
+router.get('/summary',
+  protectAuth,
+  OrderController.getRevenueSummary
+);
+
 router.post('/', 
   OrderController.validateOrderData, 
   OrderController.createOrder
@@ -23,11 +28,6 @@ router.patch('/:id/status',
   OrderController.validateOrderUpdateData,
   OrderController.checkExistingOrder,
   OrderController.updateOrderStatus
-);
-
-router.get('/summary',
-  protectAuth,
-  OrderController.getRevenueSummary
 );
 
 router.delete('/:id', 
