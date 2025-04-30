@@ -3,33 +3,38 @@ import { ApiError } from "../errors/api-error";
 import { AxiosError } from "axios";
 import { apiMessageErrorHandler } from "../errors/api-message-error-handler";
 
-export interface IProduct {
+export interface IAddress {
+  address: string;
+  region: string;
+  postCode: string;
+  country: string;
+}
+
+export interface IClient {
   id: string;
   name: string;
-  description: string;
-  category: "DRINK" | "PIZZA";
-  size: string;
-  price: number;
+  cpf: string;
+  phoneNumber: string;
+  active: boolean;
+  address: IAddress[];
 }
 
-export async function createProduct(
+export async function createClient(
   name: string,
-  description: string,
-  category: string,
-  size: string,
-  price: number
+  cpf: string,
+  phoneNumber: string,
+  address: IAddress
 ) {
   try {
-    const response = await api.post<{ product: IProduct }>("/products", {
+    const response = await api.post<{ client: IClient }>("/clients", {
       name,
-      description,
-      category,
-      size,
-      price,
+      cpf,
+      phoneNumber,
+      address,
     });
 
     return {
-      product: response.data.product,
+      client: response.data.client,
     };
   } catch (error) {
     const { message, paths } = apiMessageErrorHandler(
@@ -42,12 +47,12 @@ export async function createProduct(
   }
 }
 
-export async function fetchProducts() {
+export async function fetchClients() {
   try {
-    const response = await api.get<{ products: IProduct[] }>("/products");
+    const response = await api.get<{ clients: IClient[] }>("/clients");
 
     return {
-      products: response.data.products,
+      clients: response.data.clients,
     };
   } catch (error) {
     const { message } = apiMessageErrorHandler(
@@ -60,12 +65,12 @@ export async function fetchProducts() {
   }
 }
 
-export async function getProductById(id: string) {
+export async function getClientById(id: string) {
   try {
-    const response = await api.get<{ product: IProduct }>(`/products/${id}`);
+    const response = await api.get<{ client: IClient }>(`/clients/${id}`);
 
     return {
-      product: response.data.product,
+      client: response.data.client,
     };
   } catch (error) {
     const { message } = apiMessageErrorHandler(
@@ -78,25 +83,23 @@ export async function getProductById(id: string) {
   }
 }
 
-export async function updateProduct(
+export async function updateClient(
   id: string,
   name: string,
-  description: string,
-  category: string,
-  size: string,
-  price: number
+  cpf: string,
+  phoneNumber: string,
+  address: IAddress
 ) {
   try {
-    const response = await api.put<{ product: IProduct }>(`/products/${id}`, {
+    const response = await api.put<{ client: IClient }>(`/clients/${id}`, {
       name,
-      description,
-      category,
-      size,
-      price,
+      cpf,
+      phoneNumber,
+      address,
     });
 
     return {
-      product: response.data.product,
+      client: response.data.client,
     };
   } catch (error) {
     const { message, paths } = apiMessageErrorHandler(
@@ -109,9 +112,9 @@ export async function updateProduct(
   }
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteClient(id: string) {
   try {
-    await api.delete(`/products/${id}`);
+    await api.delete(`/clients/${id}`);
 
     return {
       message: "ok",
