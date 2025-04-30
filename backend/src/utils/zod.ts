@@ -4,9 +4,14 @@ import { PaymentMethod, OrderStatus } from '../../generated/prisma';
 export const clientSchema = z.object({
   name: z.string(),
   cpf: z.string(),
-  addressId: z.string().uuid(),
   phoneNumber: z.string(),
-  activate: z.boolean().default(true),
+  active: z.boolean().default(true),
+  address: z.object({
+    address: z.string(),
+    region: z.string(),
+    postCode: z.string(),
+    country: z.string()
+  }),
 });
 
 export const loginSchema = z.object({

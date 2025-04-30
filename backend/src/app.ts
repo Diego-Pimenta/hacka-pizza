@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes';
 import clientRoutes from './routes/client.routes';
 import orderRoutes from './routes/order.routes';
 import productRoutes from './routes/product.routes';
+import addressRoutes from './routes/address.routes';
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ app.use('/auth', authRoutes);
 app.use('/clients', protectAuth, clientRoutes);
 app.use('/order', protectAuth, orderRoutes);
 app.use('/products', protectAuth, productRoutes);
+app.use('', protectAuth, addressRoutes);
+
 
 app.use(errorHandler);
 

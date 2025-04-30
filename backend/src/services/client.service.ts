@@ -1,7 +1,18 @@
 import { prisma } from '../utils/prisma';
 import { Client, Prisma } from '../../generated/prisma';
 
-export const createClient = async (data: Prisma.ClientUncheckedCreateInput) => {
+export const createClient = async (data: {
+  name: string;
+  cpf: string;
+  phoneNumber: string;
+  active: boolean;
+  address: {
+    address: string;
+    region: string;
+    postCode: string; 
+    country: string;
+  };
+}) => {
   const client = await Promise.all([
     prisma.client.findUnique({
       where: {
@@ -19,9 +30,18 @@ export const createClient = async (data: Prisma.ClientUncheckedCreateInput) => {
     throw new Error('Client already exists');
   }
 
-  await prisma.client.create({
-    data,
+  const { address, ...clientData } = data;
+
+  const cliente = await prisma.client.create({
+    data: {
+      ...clientData,
+      address: {
+        create: address
+      }
+    },
   });
+
+  return cliente;
 };
 
 export const getAllClients = async () => {
