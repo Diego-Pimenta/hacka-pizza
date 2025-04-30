@@ -7,12 +7,14 @@ router.post('/', ProductController.validateProductData, ProductController.create
 router.get('/name', ProductController.getProductByName);
 router.get('/', ProductController.getProducts);
 router.get('/:id', ProductController.checkExistingProduct, ProductController.getProductById);
+
 router.put(
   '/:id',
-  ProductController.validateProductData,
-  ProductController.checkExistingProduct,
-  ProductController.updateProduct
+  ProductController.validateProductDataUpdate,
+  ProductController.checkExistingProduct, 
+  ProductController.updateProduct   
 );
+
 router.delete('/:id', ProductController.checkExistingProduct, ProductController.deleteProduct);
 
 export default router;

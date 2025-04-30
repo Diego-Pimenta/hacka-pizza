@@ -128,6 +128,33 @@ export const orderUpdateSchema = z.object({
   }),
 });
 
+export const addressSchema = z.object({
+  address: z.string({
+    required_error: "Address is required",
+    invalid_type_error: "Address must be a string",
+  }),
+  region: z.string({
+    required_error: "Region is required",
+    invalid_type_error: "Region must be a string",
+  }),
+  postCode: z.string({
+    required_error: "Post code is required",
+    invalid_type_error: "Post code must be a string",
+  }),
+  country: z.string({
+    required_error: "Country is required",
+    invalid_type_error: "Country must be a string",
+  }),
+  clientId: z
+    .string({
+      invalid_type_error: "Client ID must be a string",
+    })
+    .uuid({
+      message: "Invalid client ID format",
+    })
+    .optional(),
+});
+
 export const addressUpdateSchema = z.object({
   address: z.string({
     invalid_type_error: "Address must be a string"
