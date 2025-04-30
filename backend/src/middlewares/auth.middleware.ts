@@ -6,18 +6,14 @@ export const protectAuth = async (req: Request, res: Response, next: NextFunctio
     const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
-      res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Token not provided' });
       return;
     }
 
     const decoded = verifyToken(token);
-
-    req.user = {
-      id: decoded.id,
-    };
-
+    req.user = { id: decoded.id };
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Unauthorized' });
+    res.status(401).json({ message: 'Unauthorized access' });
   }
 };

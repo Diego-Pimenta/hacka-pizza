@@ -24,7 +24,6 @@ export const orderSchema = z.object({
   addressId: z.string().uuid(),
   paymentMethod: z.nativeEnum(PaymentMethod),
   status: z.nativeEnum(OrderStatus).default('PENDING'),
-  total: z.number().positive(),
   orderItems: z.array(
     z.object({
       productId: z.string().uuid(),
@@ -32,6 +31,7 @@ export const orderSchema = z.object({
     })
   ),
 });
+
 
 export const orderUpdateSchema = z.object({
   status: z.nativeEnum(OrderStatus),

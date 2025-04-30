@@ -1,5 +1,6 @@
 import { prisma } from '../utils/prisma';
 import { Product, Prisma } from '../../generated/prisma';
+import { HttpError } from '../utils/http.error';
 
 export const createProduct = async (data: Prisma.ProductCreateInput) => {
   const existingProduct = await prisma.product.findFirst({
@@ -9,7 +10,7 @@ export const createProduct = async (data: Prisma.ProductCreateInput) => {
   });
 
   if (existingProduct) {
-    throw new Error('Product with this name already exists');
+    throw new HttpError('Product with this name already exists', 409);
   }
 
   return await prisma.product.create({

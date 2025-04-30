@@ -32,6 +32,16 @@ export const getClientById = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+export const getClientByPhoneNumber = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { phone } = req.params;
+    const client = await ClientService.getClientByPhoneNumber(phone);
+    res.status(200).json({ success: true, data: client });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateClient = async (req: Request, res: Response, next: NextFunction) => {
   const data = clientSchema.parse(req.body);
 

@@ -87,19 +87,21 @@ async function seed() {
   const user = await getUser();
   await prisma.user.create({ data: user });
 
-  await Promise.all(
-    getAddresses().map((address) => {
-      return prisma.address.create({
-        data: address,
+  const createdClients = await Promise.all(
+    getClients().map((client) => {
+      return prisma.client.create({
+        data: client,
       });
     })
   );
 
-  // TODO: attach address to the client
   await Promise.all(
-    getClients().map((client) => {
-      return prisma.client.create({
-        data: client,
+    getAddresses().map((address, index) => {
+      return prisma.address.create({
+        data: {
+          ...address,
+          clientId: createdClients[index]?.id,
+        },
       });
     })
   );
