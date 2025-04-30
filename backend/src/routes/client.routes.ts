@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { protectAuth } from '../middlewares/auth.middleware';
 import * as ClientController from '../controllers/client.controller';
 
 const router = Router();

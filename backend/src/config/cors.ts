@@ -1,6 +1,7 @@
 import { CorsOptions } from 'cors';
+import 'dotenv/config';
 
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = [`${process.env.CLIENT_URL}`];
 
 const options: CorsOptions = {
   origin: allowedOrigins,

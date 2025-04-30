@@ -17,10 +17,31 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const doesPasswordMatch = await comparePasswords(password, user.password);
     if (doesPasswordMatch) {
       const token = generateToken({ id: user.id }, '1h');
-      res.status(200).json({ success: true, data: { token: token } });
+      res.status(200).json({ success: true, token: token });
     } else {
       res.status(401).json({ success: false, error: { message: 'Invalid credentials' } });
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await UserService.getUserById(req.user.id);
+
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found' } });
+      return;
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     next(error);
   }
